@@ -18,6 +18,9 @@ $router->get('/', function () use ($router) {
 });
 
 $router->post('login', 'Login\LoginController@login');
-$router->post('forgetPassword', 'Login\LoginController@forgetPassword');
-$router->post('newPassword', 'Login\LoginController@newPassword');
-$router->post('newPasswordSave', 'Login\LoginController@newPasswordSave');
+// $router->post('forgetPassword', 'Login\LoginController@forgetPassword');
+// $router->post('newPassword', 'Login\LoginController@newPassword');
+// $router->post('newPasswordSave', 'Login\LoginController@newPasswordSave');
+$router->group(['namespace' => 'Master'], function () use ($router) {
+    $router->post('employee/getList', ['uses' =>  'EmployeeController@getList', 'as' => 'employee/getList']);
+});
