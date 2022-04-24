@@ -31,7 +31,9 @@ class Employee extends Model
 
     public static function getPopulateEmployee($status)
     {
-        $model = self::where('wina_m_user.status', $status);
+        $model = self::select('wina_m_user.*', 'wina_m_global_param.name as religion')
+            ->leftJoin('wina_m_global_param', 'wina_m_global_param.code', 'wina_m_user.religion_id')
+            ->where('wina_m_user.status', $status);
         return $model;
     }
 }

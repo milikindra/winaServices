@@ -24,15 +24,15 @@ class LoginController extends Controller
 
         if (!isset($user)) {
             $message = 'User tidak ditemukan';
-            Log::debug($request->path() . " | " . $message . " | " . print_r($_POST, TRUE));
+            Log::debug($request->path() . " | "  . print_r($message) .  " | " . print_r($_POST, TRUE));
             return response()->json([
                 'result' => FALSE,
                 'message' => $message
             ]);
         } else {
-            if ($user->status == 0) {
+            if ($user->status == 1) {
                 $message = 'Akun belum aktif';
-                Log::debug($request->path() . " | " . $message . " | " . print_r($_POST, TRUE));
+                Log::debug($request->path() . " | "  . print_r($message) .  " | " . print_r($_POST, TRUE));
                 return response()->json([
                     'result' => FALSE,
                     'message' => $message
@@ -46,7 +46,7 @@ class LoginController extends Controller
                     }
 
                     $message = "User '$username' successfully login";
-                    Log::debug($request->path() . " | " . $message . " | " . print_r($_POST, TRUE));
+                    Log::debug($request->path() . " | "  . print_r($message) .  " | " . print_r($_POST, TRUE));
                     return response()->json([
                         'result' => TRUE,
                         'message' => $message,
@@ -54,7 +54,7 @@ class LoginController extends Controller
                     ]);
                 } else {
                     $message = 'Password yang anda masukkan salah';
-                    Log::debug($request->path() . " | " . $message . " | " . print_r($_POST, TRUE));
+                    Log::debug($request->path() . " | "  . print_r($message) .  " | " . print_r($_POST, TRUE));
                     return response()->json([
                         'result' => FALSE,
                         'message' => $message
