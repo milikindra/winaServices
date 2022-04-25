@@ -4,9 +4,10 @@ namespace App\Http\Controllers\Login;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+use App\User;
 
 
 
@@ -37,7 +38,6 @@ class LoginController extends Controller
                     'message' => $message
                 ]);
             } else {
-
                 $checkPassword = Hash::check($password, $user->password);
                 if ($checkPassword) {
                     if (!isset($user->api_token)) {

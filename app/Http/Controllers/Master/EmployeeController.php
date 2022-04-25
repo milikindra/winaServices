@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Master;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
+use App\Tree\ModuleNode;
 use App\Models\Master\Employee;
-
-
 
 class EmployeeController extends Controller
 {
@@ -84,5 +84,27 @@ class EmployeeController extends Controller
                 'message' => $message
             ]);
         }
+    }
+
+    public function getMenuList(Request $request)
+    {
+        $menu = array();
+        $userid = $request->get("user_id");
+        $module = DB::select("call wina_sp_get_module_user ('$userid')");
+        $module = collect($module)->keyBy('module_id')->toArray();
+        $moduleParent = DB::select("call wina_sp_get_module_user_parent ('$userid')");
+
+        // $max = 9999;
+        $level = 0;
+        $list = [];
+        $menu = [];
+        foreach ($moduleParent as $node) {
+            $tree = new ModuleNode($node->module_id, $module, $level);
+            $tree->addChildren($module, $node->module_id, $list);
+            array_push($menu, $tree);
+        }
+
+
+        return json_encode($menu);
     }
 }
