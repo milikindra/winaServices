@@ -22,8 +22,10 @@ $router->post('login', 'Login\LoginController@login');
 // $router->post('newPassword', 'Login\LoginController@newPassword');
 // $router->post('newPasswordSave', 'Login\LoginController@newPasswordSave');
 $router->group(['namespace' => 'Master'], function () use ($router) {
-    $router->post('employee/getList', ['uses' =>  'EmployeeController@getList', 'as' => 'employee/getList']);
     $router->post('employee/getMenu', ['uses' => 'EmployeeController@getMenuList', 'as' => 'employee/getMenu']);
+    $router->post('employee/getList', ['uses' =>  'EmployeeController@getList', 'as' => 'employee/getList']);
+    $router->post('employeeAddSave', ['uses' => 'EmployeeController@employeeAddSave', 'as' => 'employeeAddSave']);
+    $router->post('getEmployeeById', ['uses' => 'EmployeeController@getEmployeeById', 'as' => 'getEmployeeById']);
 });
 // $router->group(['middleware' => ['auth']], function () use ($router) {
 //     $router->group(['namespace' => 'Master'], function () use ($router) {

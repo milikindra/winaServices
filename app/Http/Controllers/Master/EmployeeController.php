@@ -12,9 +12,30 @@ use App\Models\Master\Employee;
 
 class EmployeeController extends Controller
 {
+    public function getMenuList(Request $request)
+    {
+        $menu = array();
+        $userid = $request->get("user_id");
+        $module = DB::select("call wina_sp_get_module_user ('$userid')");
+        $module = collect($module)->keyBy('module_id')->toArray();
+        $moduleParent = DB::select("call wina_sp_get_module_user_parent ('$userid')");
+
+        // $max = 9999;
+        $level = 0;
+        $list = [];
+        $menu = [];
+        foreach ($moduleParent as $node) {
+            $tree = new ModuleNode($node->module_id, $module, $level);
+            $tree->addChildren($module, $node->module_id, $list);
+            array_push($menu, $tree);
+        }
+
+
+        return json_encode($menu);
+    }
+
     public function getList(Request $request)
     {
-        // try {
         $model = new Employee();
         $fields = $model->getTableColumns();
 
@@ -76,35 +97,52 @@ class EmployeeController extends Controller
         ];
 
         return response()->json($data);
-        // } catch (\Exception $e) {
-        //     $message = 'Failed to fetch employee data.';
-        //     Log::debug($request->path() . " | " . $message . " | " . print_r($_POST, TRUE));
-        //     return response()->json([
-        //         'result' => FALSE,
-        //         'message' => $message
-        //     ]);
-        // }
     }
 
-    public function getMenuList(Request $request)
+    public function EmployeeAddSave(Request $request)
     {
-        $menu = array();
-        $userid = $request->get("user_id");
-        $module = DB::select("call wina_sp_get_module_user ('$userid')");
-        $module = collect($module)->keyBy('module_id')->toArray();
-        $moduleParent = DB::select("call wina_sp_get_module_user_parent ('$userid')");
-
-        // $max = 9999;
-        $level = 0;
-        $list = [];
-        $menu = [];
-        foreach ($moduleParent as $node) {
-            $tree = new ModuleNode($node->module_id, $module, $level);
-            $tree->addChildren($module, $node->module_id, $list);
-            array_push($menu, $tree);
+        DB::beginTransaction();
+        try {
+            $model = Employee::addData($request);
+            DB::commit();
+            $message = 'Succesfully save data.';
+            $data = [
+                "result" => true,
+                'message' => $message,
+                "data" => $model
+            ];
+            return $data;
+        } catch (\Exception $e) {
+            DB::rollback();
+            $message = 'Terjadi Error Server.';
+            $data = [
+                "result" => false,
+                'message' => $message
+            ];
+            Log::debug($request->path() . " | "  . $message .  " | " . print_r($request->input(), TRUE));
+            return $data;
         }
+    }
 
+    public function getEmployeeById(Request $request)
+    {
+        try {
+            $user_id = $request->user_id;
+            $model = DB::select("call wina_sp_get_user ('$user_id')");
+            $data = [
+                "result" => true,
+                "data" => $model
+            ];
 
-        return json_encode($menu);
+            return json_encode($data);
+        } catch (\Exception $e) {
+            $message = 'Terjadi Error Server.';
+            $data = [
+                "result" => false,
+                'message' => $message
+            ];
+            Log::debug($request->path() . " | "  . $message .  " | " . print_r($request->input(), TRUE));
+            return $data;
+        }
     }
 }
