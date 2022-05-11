@@ -30,6 +30,11 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
 
     // inventory
     $router->post('inventory/getList', ['uses' =>  'InventoryController@getList', 'as' => 'inventory/getList']);
+    $router->post('inventoryAddSave', ['uses' => 'InventoryController@inventoryAddSave', 'as' => 'inventoryAddSave']);
+    $router->post('inventoryDelete', ['uses' => 'InventoryController@inventoryDelete', 'as' => 'inventoryDelete']);
+    $router->post('inventoryEdit', ['uses' => 'InventoryController@inventoryEdit', 'as' => 'inventoryEdit']);
+    $router->post('inventoryUpdate', ['uses' => 'InventoryController@inventoryUpdate', 'as' => 'inventoryUpdate']);
+    $router->post('kartuStok/getList', ['uses' => 'InventoryController@kartuStokGetList', 'as' => 'kartuStok/getList']);
 
     // province
     $router->post('getProvinceById', ['uses' => 'ProvinceController@getProvinceById', 'as' => 'getProvinceById']);
@@ -39,6 +44,12 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
 
     // subkategori
     $router->post('subKategoriGetRawData', ['uses' => 'SubKategoriController@subKategoriGetRawData', 'as' => 'subKategoriGetRawData']);
+
+    // merk
+    $router->post('merkGetRawData', ['uses' => 'MerkController@merkGetRawData', 'as' => 'merkGetRawData']);
+
+    // lokasi
+    $router->post('lokasiGetRawData', ['uses' => 'LokasiController@lokasiGetRawData', 'as' => 'lokasiGetRawData']);
 });
 // $router->group(['middleware' => ['auth']], function () use ($router) {
 //     $router->group(['namespace' => 'Master'], function () use ($router) {
