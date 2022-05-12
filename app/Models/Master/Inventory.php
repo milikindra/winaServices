@@ -54,6 +54,13 @@ class Inventory extends Model
         $model->keterangan = $request->input('keterangan');
         $model->aktif = $request->input('aktif');
         $model->isKonsi = $request->input('isKonsi');
+        $model->isMinus = $request->input('isMinus');
+        $model->NO_REK1 = $request->input('NO_REK1');
+        $model->NO_REK2 = $request->input('NO_REK2');
+        $model->PphPs23 = $request->input('PphPs23');
+        $model->PPhPs21 = $request->input('PPhPs21');
+        $model->PPhPs4Ayat2 = $request->input('PPhPs4Ayat2');
+        $model->PPhPs21OP = $request->input('PPhPs21OP');
         $model->save();
         return $model;
     }
@@ -72,6 +79,13 @@ class Inventory extends Model
         $model->keterangan = $request->input('keterangan');
         $model->aktif = $request->input('aktif');
         $model->isKonsi = $request->input('isKonsi');
+        $model->isMinus = $request->input('isMinus');
+        $model->NO_REK1 = $request->input('NO_REK1');
+        $model->NO_REK2 = $request->input('NO_REK2');
+        $model->PphPs23 = $request->input('PphPs23');
+        $model->PPhPs21 = $request->input('PPhPs21');
+        $model->PPhPs4Ayat2 = $request->input('PPhPs4Ayat2');
+        $model->PPhPs21OP = $request->input('PPhPs21OP');
         $model->save();
         return $model;
     }

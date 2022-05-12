@@ -50,6 +50,9 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
 
     // lokasi
     $router->post('lokasiGetRawData', ['uses' => 'LokasiController@lokasiGetRawData', 'as' => 'lokasiGetRawData']);
+
+    // lokasi
+    $router->post('accountGetRawData', ['uses' => 'AccountController@accountGetRawData', 'as' => 'accountGetRawData']);
 });
 // $router->group(['middleware' => ['auth']], function () use ($router) {
 //     $router->group(['namespace' => 'Master'], function () use ($router) {

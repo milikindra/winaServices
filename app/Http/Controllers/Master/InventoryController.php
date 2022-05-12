@@ -99,15 +99,15 @@ class InventoryController extends Controller
     {
         DB::beginTransaction();
         try {
-            $model = Inventory::addData($request);
-            DB::commit();
-            $message = 'Succesfully save data.';
-            $data = [
-                "result" => true,
-                'message' => $message,
-                "data" => $model
-            ];
-            return $data;
+        $model = Inventory::addData($request);
+        DB::commit();
+        $message = 'Succesfully save data.';
+        $data = [
+            "result" => true,
+            'message' => $message,
+            "data" => $model
+        ];
+        return $data;
         } catch (\Exception $e) {
             DB::rollback();
             $message = 'Terjadi Error Server.';
