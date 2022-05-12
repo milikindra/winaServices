@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
 use App\Tree\ModuleNode;
-use App\Models\Master\accountGl;
+use App\Models\Master\AccountGl;
 
 class AccountController extends Controller
 {
