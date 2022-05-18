@@ -35,6 +35,7 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
     $router->post('inventoryEdit', ['uses' => 'InventoryController@inventoryEdit', 'as' => 'inventoryEdit']);
     $router->post('inventoryUpdate', ['uses' => 'InventoryController@inventoryUpdate', 'as' => 'inventoryUpdate']);
     $router->post('kartuStok/getList', ['uses' => 'InventoryController@kartuStokGetList', 'as' => 'kartuStok/getList']);
+    $router->post('inventoryGetRawData', ['uses' => 'InventoryController@inventoryGetRawData', 'as' => 'inventoryGetRawData']);
 
     // province
     $router->post('getProvinceById', ['uses' => 'ProvinceController@getProvinceById', 'as' => 'getProvinceById']);
@@ -60,3 +61,12 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
 //         $router->post('employee/getList', ['uses' =>  'EmployeeController@getList', 'as' => 'employee/getList']);
 //     });
 // });
+$router->group(['namespace' => 'Transaction'], function () use ($router) {
+    //SalesOrder
+    $router->post('salesOrder/getList', ['uses' =>  'SalesOrderController@getList', 'as' => 'salesOrder/getList']);
+});
+
+$router->group(['namespace' => 'Report'], function () use ($router) {
+    $router->post('reportPosisiStock', ['uses' =>  'ReportStockController@reportPosisiStock', 'as' => 'reportPosisiStock']);
+    //ReportStock
+});

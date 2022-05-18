@@ -76,7 +76,7 @@ class InventoryController extends Controller
                 $limit = $request->input('per_page');
             }
             $offset = ($page - 1) * $limit;
-            if ($offset > 0) {
+            if ($limit > 0) {
                 $inventory->skip($offset)->take($limit);
             }
 
@@ -99,15 +99,15 @@ class InventoryController extends Controller
     {
         DB::beginTransaction();
         try {
-        $model = Inventory::addData($request);
-        DB::commit();
-        $message = 'Succesfully save data.';
-        $data = [
-            "result" => true,
-            'message' => $message,
-            "data" => $model
-        ];
-        return $data;
+            $model = Inventory::addData($request);
+            DB::commit();
+            $message = 'Succesfully save data.';
+            $data = [
+                "result" => true,
+                'message' => $message,
+                "data" => $model
+            ];
+            return $data;
         } catch (\Exception $e) {
             DB::rollback();
             $message = 'Terjadi Error Server.';
@@ -201,11 +201,19 @@ class InventoryController extends Controller
             $lokasi = '%';
         }
         DB::select("CALL TF_STOCK('$lokasi', '$kode', '$edate', '$item_transfer')");
+        DB::select("CALL wina_tf_stock()");
         $model = new Tmp_Postok();
         $fields = $model->getTableColumns();
-        $stok = Tmp_Postok::getPopulateStok();
-        $stok->where('trx', 'PI');
-        $stok->orWhere('trx', 'PK');
+        $stok = Tmp_Postok::getPopulateStok($sdate, $edate);
+        if ($item_transfer != "Y") {
+            $stok->orWhere('tx.trx', 'Awal');
+            $stok->orwhere('tx.trx', 'PI');
+            $stok->orWhere('tx.trx', 'WIP');
+            $stok->orwhere(function ($query) {
+                $query->Where('tx.trx', 'PK');
+                $query->WhereNull('pakai_head.no_so');
+            });
+        }
         if ($request->has('search')) {
             $keyword = $request->input('search');
             if (!empty($keyword)) {
@@ -260,5 +268,11 @@ class InventoryController extends Controller
         ];
 
         return response()->json($data);
+    }
+
+    public function inventoryGetRawData()
+    {
+        $model = Inventory::getAll();
+        return response()->json($model);
     }
 }
