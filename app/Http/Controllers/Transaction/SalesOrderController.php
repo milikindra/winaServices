@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
 
 use App\Tree\ModuleNode;
 use App\Models\Transaction\SalesOrder;
+use App\Models\Transaction\SalesOrderDetail;
 
 class SalesOrderController extends Controller
 {
@@ -21,8 +23,18 @@ class SalesOrderController extends Controller
         $fdate = $request->input('fdate');
         $sdate = $request->input('sdate');
         $edate = $request->input('edate');
-
         $so = SalesOrder::getPopulateSalesOrder();
+
+        if ($fdate == "Y") {
+            if ($sdate == null) {
+                $sdate = Carbon::parse($request->sdate)->format('Y-m-d');
+            }
+
+            if ($edate == null) {
+                $edate = Carbon::parse($request->edate)->format('Y-m-d');
+            }
+            $so->whereBetween('TGL_BUKTI', [$sdate, $edate]);
+        }
 
         if ($request->has('search')) {
             $keyword = $request->input('search');

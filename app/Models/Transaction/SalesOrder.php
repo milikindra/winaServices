@@ -34,8 +34,49 @@ class SalesOrder extends Model
 
     public static function getPopulateSalesOrder()
     {
-        $model = self::select('*');
+
+        $model = DB::table('wina_v_salesorder');
+
+        // $model = DB::select(DB::RAW('select * from (select 
+        // kontrak_head.*,
+        //         sum(
+        //         IF
+        //         ( kontrak_det.state != "B" OR kontrak_det.state IS NULL, kontrak_det.QTY, 0 )) AS Qty_SO,
+        //         IFNULL( SUM( sj_det.QTY ), 0 ) AS Qty_DO,
+        //         IFNULL( SUM( rj_det.QTY ), 0 ) AS Qty_RJ 
+        //     FROM
+        //         `kontrak_head`
+        //         LEFT JOIN `kontrak_det` ON `kontrak_det`.`NO_BUKTI` = `kontrak_head`.`NO_BUKTI`
+        //         LEFT JOIN `sj_head` ON `sj_head`.`no_So` = `kontrak_det`.`NO_BUKTI`
+        //         LEFT JOIN `sj_det` ON `sj_det`.`NO_BUKTI` = `sj_head`.`NO_BUKTI`
+        //         LEFT JOIN `rj_head` ON `rj_head`.`no_so` = `kontrak_det`.`NO_BUKTI`
+        //         LEFT JOIN `rj_det` ON `rj_det`.`NO_BUKTI` = `rj_head`.`NO_BUKTI` 
+        //     GROUP BY
+        //         `kontrak_head`.`NO_BUKTI`) as A
+        // '));
+        // $model = self::select(
+        //     DB::RAW('kontrak_head.NO_BUKTI as NO_BUKTI'),
+        //     DB::RAW('kontrak_head.TGL_BUKTI as TGL_BUKTI'),
+        //     DB::RAW('kontrak_head.ID_CUST as ID_CUST'),
+        //     DB::RAW('kontrak_head.NM_CUST as NM_CUST'),
+        //     DB::RAW('kontrak_head.Dept as Dept'),
+        //     DB::RAW('kontrak_head.PO_CUST as PO_CUST'),
+        //     DB::RAW('kontrak_head.totdpp as totdpp'),
+        //     DB::RAW('kontrak_head.totppn as totppn'),
+        //     DB::RAW('kontrak_head.total as total'),
+        //     DB::RAW('sum(if(kontrak_det.state != "B" OR kontrak_det.state is null, kontrak_det.QTY, 0))as Qty_SO'),
+        //     DB::RAW('IFNULL(SUM(sj_det.QTY),0) AS Qty_DO'),
+        //     DB::RAW('IFNULL(SUM(rj_det.QTY),0) AS Qty_RJ'),
+        // )
+        //     ->leftJoin('kontrak_det', 'kontrak_det.NO_BUKTI', 'kontrak_head.NO_BUKTI')
+        //     ->leftJoin('sj_head', 'sj_head.no_So', 'kontrak_det.NO_BUKTI')
+        //     ->leftJoin('sj_det', 'sj_det.NO_BUKTI', 'sj_head.NO_BUKTI')
+        //     ->leftJoin('rj_head', 'rj_head.no_so', 'kontrak_det.NO_BUKTI')
+        //     ->leftJoin('rj_det', 'rj_det.NO_BUKTI', 'rj_head.NO_BUKTI');
         return $model;
+
+        // $model = self::select('*');
+        // return $model;
     }
 
     public static function addData($request)
@@ -92,7 +133,6 @@ class SalesOrder extends Model
 
     public static function deleteData($request)
     {
-
         $model = self::where('no_stock', $request)->delete();
         return $model;
     }

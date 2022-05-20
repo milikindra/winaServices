@@ -34,7 +34,8 @@ class Inventory extends Model
 
     public static function getPopulateInventory()
     {
-        $model = self::select('no_stock', DB::RAW('IF(LENGTH(nm_stock > 50),SUBSTRING(nm_stock,1,50),nm_stock) as nama_barang'), 'sat', 'sisa_qty as saldo', DB::RAW('"0" as booked'), DB::RAW('"0" as orders'), DB::RAW('"0" as transit'), 'kategori', 'kategori2');
+        // $model = self::select('no_stock', DB::RAW('IF(LENGTH(nm_stock > 50),SUBSTRING(nm_stock,1,50),nm_stock) as nama_barang'), 'sat', 'sisa_qty as saldo', DB::RAW('"0" as booked'), DB::RAW('"0" as orders'), DB::RAW('"0" as transit'), 'kategori', 'kategori2');
+        $model = self::select('no_stock', 'nm_stock as nama_barang', 'sat', 'sisa_qty as saldo', DB::RAW('"0" as booked'), DB::RAW('"0" as orders'), DB::RAW('"0" as transit'), 'kategori', 'kategori2');
         return $model;
     }
 

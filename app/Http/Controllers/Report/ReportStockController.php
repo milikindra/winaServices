@@ -48,6 +48,7 @@ class ReportStockController extends Controller
         $model = new Tmp_PostokResult();
         $stok = Tmp_PostokResult::getPopulateStok();
         $stok->leftjoin('stock', '_postokresult.no_stock', 'stock.no_stock');
+        
         $stok->where('stock.merk', 'LIKE', $merk);
         $stok->where('stock.kategori', 'LIKE', $kategori);
         $stok->where('stock.kategori2', 'LIKE', $subkategori);
