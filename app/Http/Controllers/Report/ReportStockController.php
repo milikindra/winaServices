@@ -48,7 +48,7 @@ class ReportStockController extends Controller
         $model = new Tmp_PostokResult();
         $stok = Tmp_PostokResult::getPopulateStok();
         $stok->leftjoin('stock', '_postokresult.no_stock', 'stock.no_stock');
-        
+
         $stok->where('stock.merk', 'LIKE', $merk);
         $stok->where('stock.kategori', 'LIKE', $kategori);
         $stok->where('stock.kategori2', 'LIKE', $subkategori);
@@ -59,6 +59,7 @@ class ReportStockController extends Controller
         } else if ($qty == '0') {
             $stok->where('_postokresult.qty', '=', '0');
         }
+        $stok->orderby('stock.no_stock', 'ASC');
 
         $data = [
             'result' => true,

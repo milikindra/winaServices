@@ -34,74 +34,45 @@ class SalesOrder extends Model
 
     public static function getPopulateSalesOrder()
     {
-
         $model = DB::table('wina_v_salesorder');
-
-        // $model = DB::select(DB::RAW('select * from (select 
-        // kontrak_head.*,
-        //         sum(
-        //         IF
-        //         ( kontrak_det.state != "B" OR kontrak_det.state IS NULL, kontrak_det.QTY, 0 )) AS Qty_SO,
-        //         IFNULL( SUM( sj_det.QTY ), 0 ) AS Qty_DO,
-        //         IFNULL( SUM( rj_det.QTY ), 0 ) AS Qty_RJ 
-        //     FROM
-        //         `kontrak_head`
-        //         LEFT JOIN `kontrak_det` ON `kontrak_det`.`NO_BUKTI` = `kontrak_head`.`NO_BUKTI`
-        //         LEFT JOIN `sj_head` ON `sj_head`.`no_So` = `kontrak_det`.`NO_BUKTI`
-        //         LEFT JOIN `sj_det` ON `sj_det`.`NO_BUKTI` = `sj_head`.`NO_BUKTI`
-        //         LEFT JOIN `rj_head` ON `rj_head`.`no_so` = `kontrak_det`.`NO_BUKTI`
-        //         LEFT JOIN `rj_det` ON `rj_det`.`NO_BUKTI` = `rj_head`.`NO_BUKTI` 
-        //     GROUP BY
-        //         `kontrak_head`.`NO_BUKTI`) as A
-        // '));
-        // $model = self::select(
-        //     DB::RAW('kontrak_head.NO_BUKTI as NO_BUKTI'),
-        //     DB::RAW('kontrak_head.TGL_BUKTI as TGL_BUKTI'),
-        //     DB::RAW('kontrak_head.ID_CUST as ID_CUST'),
-        //     DB::RAW('kontrak_head.NM_CUST as NM_CUST'),
-        //     DB::RAW('kontrak_head.Dept as Dept'),
-        //     DB::RAW('kontrak_head.PO_CUST as PO_CUST'),
-        //     DB::RAW('kontrak_head.totdpp as totdpp'),
-        //     DB::RAW('kontrak_head.totppn as totppn'),
-        //     DB::RAW('kontrak_head.total as total'),
-        //     DB::RAW('sum(if(kontrak_det.state != "B" OR kontrak_det.state is null, kontrak_det.QTY, 0))as Qty_SO'),
-        //     DB::RAW('IFNULL(SUM(sj_det.QTY),0) AS Qty_DO'),
-        //     DB::RAW('IFNULL(SUM(rj_det.QTY),0) AS Qty_RJ'),
-        // )
-        //     ->leftJoin('kontrak_det', 'kontrak_det.NO_BUKTI', 'kontrak_head.NO_BUKTI')
-        //     ->leftJoin('sj_head', 'sj_head.no_So', 'kontrak_det.NO_BUKTI')
-        //     ->leftJoin('sj_det', 'sj_det.NO_BUKTI', 'sj_head.NO_BUKTI')
-        //     ->leftJoin('rj_head', 'rj_head.no_so', 'kontrak_det.NO_BUKTI')
-        //     ->leftJoin('rj_det', 'rj_det.NO_BUKTI', 'rj_head.NO_BUKTI');
         return $model;
+    }
 
-        // $model = self::select('*');
-        // return $model;
+    public static function getPopulateSalesOrderDetail()
+    {
+        $model = DB::table('wina_v_salesorder_detail');
+        return $model;
     }
 
     public static function addData($request)
     {
         $model = new self();
-        $model->creator = $request->input('creator');
-        $model->editor = $request->input('creator');
-        $model->no_stock = $request->input('no_stock');
-        $model->nm_stock = $request->input('nm_stock');
-        $model->sat = $request->input('sat');
-        $model->minstock = $request->input('minstock');
-        $model->kategori = $request->input('kategori');
-        $model->kategori2 = $request->input('kategori2');
-        $model->merk = $request->input('merk');
-        $model->hrg_jual = $request->input('hrg_jual');
-        $model->keterangan = $request->input('keterangan');
-        $model->aktif = $request->input('aktif');
-        $model->isKonsi = $request->input('isKonsi');
-        $model->isMinus = $request->input('isMinus');
-        $model->NO_REK1 = $request->input('NO_REK1');
-        $model->NO_REK2 = $request->input('NO_REK2');
-        $model->PphPs23 = $request->input('PphPs23');
-        $model->PPhPs21 = $request->input('PPhPs21');
-        $model->PPhPs4Ayat2 = $request->input('PPhPs4Ayat2');
-        $model->PPhPs21OP = $request->input('PPhPs21OP');
+        $model->NO_BUKTI = $request['NO_BUKTI'];
+        $model->TGL_BUKTI = $request['TGL_BUKTI'];
+        $model->DIVISI = $request['DIVISI'];
+        $model->ID_CUST = $request['ID_CUST'];
+        $model->NM_CUST = $request['NM_CUST'];
+        $model->TEMPO = $request['TEMPO'];
+        $model->ID_SALES = $request['ID_SALES'];
+        $model->NM_SALES = $request['NM_SALES'];
+        $model->KETERANGAN = $request['KETERANGAN'];
+        $model->CREATOR = $request['CREATOR'];
+        $model->EDITOR = $request['EDITOR'];
+        $model->rate = $request['rate'];
+        $model->curr = $request['curr'];
+        $model->dept = $request['dept'];
+        $model->PO_CUST = $request['PO_CUST'];
+        $model->attn = $request['attn'];
+        $model->pay_term = $request['pay_term'];
+        $model->discH = $request['discH'];
+        $model->no_ref = $request['no_ref'];
+        $model->alamatkirim = $request['alamatkirim'];
+        $model->jenis = $request['jenis'];
+        $model->totdetail = $request['totdetail'];
+        $model->rp_disch = $request['rp_disch'];
+        $model->ppntotdetail = $request['ppntotdetail'];
+        $model->uangmuka = $request['uangmuka'];
+        $model->uangmuka_ppn = $request['uangmuka_ppn'];
         $model->save();
         return $model;
     }

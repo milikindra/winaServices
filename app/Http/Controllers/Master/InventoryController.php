@@ -66,7 +66,7 @@ class InventoryController extends Controller
                 $inventory->orderBy($column, $direction);
             }
         } else {
-            $inventory->orderBy('kode_barang', 'asc');
+            $inventory->orderBy('no_stock', 'asc');
         }
 
         if ($request->has('current_page')) {
@@ -79,8 +79,6 @@ class InventoryController extends Controller
             if ($limit > 0) {
                 $inventory->skip($offset)->take($limit);
             }
-
-            // $inventory->skip($offset)->take($limit);
         }
 
         $data = [

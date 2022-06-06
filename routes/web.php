@@ -52,18 +52,32 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
     // lokasi
     $router->post('lokasiGetRawData', ['uses' => 'LokasiController@lokasiGetRawData', 'as' => 'lokasiGetRawData']);
 
-    // lokasi
+    // account
     $router->post('accountGetRawData', ['uses' => 'AccountController@accountGetRawData', 'as' => 'accountGetRawData']);
+
+    // customer
+    $router->post('customerGetRawData', ['uses' => 'CustomerController@customerGetRawData', 'as' => 'customerGetRawData']);
+    $router->post('customerGetById', ['uses' => 'CustomerController@customerGetById', 'as' => 'customerGetById']);
+
+    // sales
+    $router->post('salesGetRawData', ['uses' => 'SalesController@salesGetRawData', 'as' => 'salesGetRawData']);
+
+    // bussiness unit
+    $router->post('bussinessUnitGetRawData', ['uses' => 'BussinessUnitController@bussinessUnitGetRawData', 'as' => 'bussinessUnitGetRawData']);
+
+    // department
+    $router->post('deptGetRawData', ['uses' => 'DepartmentController@deptGetRawData', 'as' => 'deptGetRawData']);
+
+    // vat
+    $router->post('vatGetRawData', ['uses' => 'VatController@vatGetRawData', 'as' => 'vatGetRawData']);
 });
-// $router->group(['middleware' => ['auth']], function () use ($router) {
-//     $router->group(['namespace' => 'Master'], function () use ($router) {
-//         $router->post('employee/getMenu', ['uses' => 'EmployeeController@getMenuList', 'as' => 'employee/getMenu']);
-//         $router->post('employee/getList', ['uses' =>  'EmployeeController@getList', 'as' => 'employee/getList']);
-//     });
-// });
+
 $router->group(['namespace' => 'Transaction'], function () use ($router) {
     //SalesOrder
     $router->post('salesOrder/getList', ['uses' =>  'SalesOrderController@getList', 'as' => 'salesOrder/getList']);
+    $router->post('salesOrderAddSave', ['uses' => 'SalesOrderController@salesOrderAddSave', 'as' => 'salesOrderAddSave']);
+    $router->post('salesOrderDetail', ['uses' => 'SalesOrderController@salesOrderDetail', 'as' => 'salesOrderDetail']);
+    $router->post('soGetLastDetail', ['uses' => 'SalesOrderController@soGetLastDetail', 'as' => 'soGetLastDetail']);
 });
 
 $router->group(['namespace' => 'Report'], function () use ($router) {
