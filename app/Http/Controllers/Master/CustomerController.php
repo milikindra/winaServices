@@ -26,4 +26,11 @@ class CustomerController extends Controller
         $model->where('mascustomer.ID_CUST', $request->id_cust);
         return $model->get();
     }
+    public function customerGetForSi(Request $request)
+    {
+        $model = Customer::getById();
+        $model->leftJoin('jual_head', 'jual_head.ID_CUST', 'mascustomer.ID_CUST');
+        $model->where('mascustomer.ID_CUST', $request->id_cust);
+        return $model->get();
+    }
 }

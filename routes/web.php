@@ -58,6 +58,7 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
     // customer
     $router->post('customerGetRawData', ['uses' => 'CustomerController@customerGetRawData', 'as' => 'customerGetRawData']);
     $router->post('customerGetById', ['uses' => 'CustomerController@customerGetById', 'as' => 'customerGetById']);
+    $router->post('customerGetForSi', ['uses' => 'CustomerController@customerGetForSi', 'as' => 'customerGetForSi']);
 
     // sales
     $router->post('salesGetRawData', ['uses' => 'SalesController@salesGetRawData', 'as' => 'salesGetRawData']);
@@ -78,6 +79,9 @@ $router->group(['namespace' => 'Transaction'], function () use ($router) {
     $router->post('salesOrderAddSave', ['uses' => 'SalesOrderController@salesOrderAddSave', 'as' => 'salesOrderAddSave']);
     $router->post('salesOrderDetail', ['uses' => 'SalesOrderController@salesOrderDetail', 'as' => 'salesOrderDetail']);
     $router->post('soGetLastDetail', ['uses' => 'SalesOrderController@soGetLastDetail', 'as' => 'soGetLastDetail']);
+
+    // SalesInvoice
+    $router->post('siGetEfaktur', ['uses' => 'SalesInvoiceController@siGetEfaktur', 'as' => 'siGetEfaktur']);
 });
 
 $router->group(['namespace' => 'Report'], function () use ($router) {

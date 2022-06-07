@@ -107,4 +107,10 @@ class SalesOrder extends Model
         $model = self::where('no_stock', $request)->delete();
         return $model;
     }
+
+    public static function getById()
+    {
+        $model = self::select('*');
+        return $model;
+    }
 }
