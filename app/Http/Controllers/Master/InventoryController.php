@@ -22,7 +22,10 @@ class InventoryController extends Controller
         $subkategori = $request->input('subkategori');
 
         $inventory = Inventory::getPopulateInventory();
-        if ($void == '1') {
+	$inventory->where('no_stock', 'NOT LIKE', '**%');
+	$inventory->where('no_stock', '<>' , '0' );
+
+	if ($void == '1') {
             $inventory->where('sisa_qty', '>', '0');
         }
 
@@ -204,7 +207,12 @@ class InventoryController extends Controller
         $fields = $model->getTableColumns();
         $stok = Tmp_Postok::getPopulateStok($sdate, $edate);
         if ($item_transfer != "Y") {
-            $stok->orWhere('tx.trx', 'Awal');
+	    $stok->orWhere('tx.trx', 'Awal');
+	    $stok->orWhere('tx.trx', 'SJ');
+	    $stok->orWhere('tx.trx', 'RI');
+	    $stok->orWhere('tx.trx', 'RJ');
+	    $stok->orWhere('tx.trx', 'RB');
+	    $stok->orWhere('tx.trx', 'SI');
             $stok->orwhere('tx.trx', 'PI');
             $stok->orWhere('tx.trx', 'WIP');
             $stok->orwhere(function ($query) {
