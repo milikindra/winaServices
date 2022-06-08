@@ -34,7 +34,7 @@ class SalesInvoice extends Model
 
     public static function getsiEfaktur()
     {
-        $model = self::select("*");
+        $model = self::select("jual_head.*", DB::raw(" GROUP_CONCAT( DISTINCT jual_det.no_sj ORDER BY jual_det.no_sj SEPARATOR ';' ) as DO_id"));
         return $model;
     }
 }

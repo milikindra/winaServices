@@ -18,27 +18,21 @@ class SalesInvoiceController extends Controller
     public function siGetEfaktur(Request $request)
     {
         $no_bukti2 = str_replace(":", "/", $request->no_bukti2);
-        $model = SalesInvoice::getSiEfaktur()->where('jual_head.no_bukti2', $no_bukti2);
+        $model_si = SalesInvoice::getSiEfaktur()
+            ->leftjoin('jual_det', 'jual_head.NO_BUKTI', 'jual_det.NO_BUKTI')
+            ->where('jual_head.no_bukti2', $no_bukti2);
 
-        $modelGet = $model->get()->toArray();
-
-        $no_so = $modelGet[0]['no_so'];
-        if (empty($modelGet[0]['no_so'])) {
-            $no_so = $modelGet[0]['no_so_um'];
+        $modelSi = $model_si->get()->toArray();
+        $no_so = $modelSi[0]['no_so'];
+        if (empty($modelSi[0]['no_so'])) {
+            $no_so = $modelSi[0]['no_so_um'];
         }
 
         $modelSo = SalesOrder::getById()->where('kontrak_head.NO_BUKTI', $no_so)->get();
         $data = [
-            'si' => $modelGet,
+            'si' => $modelSi,
             'so' => $modelSo
         ];
-
-
-        // dd($model);
-
-        // Log::info($modelSo);
-        // ->latest('nourut')
-        // ->first();
         return response()->json($data);
     }
 }
