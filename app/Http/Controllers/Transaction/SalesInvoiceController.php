@@ -22,14 +22,15 @@ class SalesInvoiceController extends Controller
             ->leftjoin('jual_det', 'jual_head.NO_BUKTI', 'jual_det.NO_BUKTI')
             ->where('jual_head.no_bukti2', $no_bukti2);
         $modelSi = $model_si->get()->toArray();
-        // Log::debug($model_si->toSql());
-        // Log::debug($modelSi);
         $no_so = $modelSi[0]['no_so'];
         if (empty($modelSi[0]['no_so'])) {
             $no_so = $modelSi[0]['no_so_um'];
         }
 
-        $modelSo = SalesOrder::getById()->where('kontrak_head.NO_BUKTI', $no_so)->get();
+        $modelSo = SalesOrder::getById()->where('kontrak_head.NO_BUKTI', $no_so)->get()->toArray();
+        if ($modelSo == null) {
+            $modelSo[0]['PO_CUST'] = null;
+        }
         $data = [
             'si' => $modelSi,
             'so' => $modelSo
