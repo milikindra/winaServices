@@ -21,8 +21,9 @@ class SalesInvoiceController extends Controller
         $model_si = SalesInvoice::getSiEfaktur()
             ->leftjoin('jual_det', 'jual_head.NO_BUKTI', 'jual_det.NO_BUKTI')
             ->where('jual_head.no_bukti2', $no_bukti2);
-
         $modelSi = $model_si->get()->toArray();
+        // Log::debug($model_si->toSql());
+        // Log::debug($modelSi);
         $no_so = $modelSi[0]['no_so'];
         if (empty($modelSi[0]['no_so'])) {
             $no_so = $modelSi[0]['no_so_um'];
