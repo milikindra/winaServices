@@ -27,6 +27,7 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
     $router->post('employee/getList', ['uses' =>  'EmployeeController@getList', 'as' => 'employee/getList']);
     $router->post('employeeAddSave', ['uses' => 'EmployeeController@employeeAddSave', 'as' => 'employeeAddSave']);
     $router->post('getEmployeeById', ['uses' => 'EmployeeController@getEmployeeById', 'as' => 'getEmployeeById']);
+    $router->post('employeeGetRawData', ['uses' => 'EmployeeController@employeeGetRawData', 'as' => 'employeeGetRawData']);
 
     // inventory
     $router->post('inventory/getList', ['uses' =>  'InventoryController@getList', 'as' => 'inventory/getList']);
@@ -54,6 +55,9 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
 
     // account
     $router->post('accountGetRawData', ['uses' => 'AccountController@accountGetRawData', 'as' => 'accountGetRawData']);
+    $router->post('accountGl/getListAccountHistory', ['uses' =>  'AccountController@getListAccountHistory', 'as' => 'AccountController/getListAccountHistory']);
+    $router->post('accountGl/getListAccount', ['uses' =>  'AccountController@getListAccount', 'as' => 'AccountController/getListAccount']);
+
 
     // customer
     $router->post('customerGetRawData', ['uses' => 'CustomerController@customerGetRawData', 'as' => 'customerGetRawData']);
@@ -71,11 +75,15 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
 
     // vat
     $router->post('vatGetRawData', ['uses' => 'VatController@vatGetRawData', 'as' => 'vatGetRawData']);
+
+    // accountGl
+    // $router->post('accountGl/getList', ['uses' =>  'AccountGeneralLedgerController@getList', 'as' => 'AccountGeneralLedgerController/getList']);
 });
 
 $router->group(['namespace' => 'Transaction'], function () use ($router) {
     //SalesOrder
     $router->post('salesOrder/getList', ['uses' =>  'SalesOrderController@getList', 'as' => 'salesOrder/getList']);
+    $router->post('salesOrder/getlistHead', ['uses' =>  'SalesOrderController@getlistHead', 'as' => 'salesOrder/getlistHead']);
     $router->post('salesOrderAddSave', ['uses' => 'SalesOrderController@salesOrderAddSave', 'as' => 'salesOrderAddSave']);
     $router->post('salesOrderDetail', ['uses' => 'SalesOrderController@salesOrderDetail', 'as' => 'salesOrderDetail']);
     $router->post('soGetLastDetail', ['uses' => 'SalesOrderController@soGetLastDetail', 'as' => 'soGetLastDetail']);
@@ -87,4 +95,9 @@ $router->group(['namespace' => 'Transaction'], function () use ($router) {
 $router->group(['namespace' => 'Report'], function () use ($router) {
     $router->post('reportPosisiStock', ['uses' =>  'ReportStockController@reportPosisiStock', 'as' => 'reportPosisiStock']);
     //ReportStock
+});
+
+$router->group(['namespace' => 'Finance'], function () use ($router) {
+    // generalLedger
+    // $router->post('generalLedger/getListAccount', ['uses' =>  'GeneralLedgerController@getListAccount', 'as' => 'generalLedger/getListAccount']);
 });

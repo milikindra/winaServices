@@ -145,4 +145,11 @@ class EmployeeController extends Controller
             return $data;
         }
     }
+
+
+    public function employeeGetRawData(Request $request)
+    {
+        $model = employee::getAll();
+        return response()->json($model);
+    }
 }

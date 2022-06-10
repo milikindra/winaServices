@@ -160,4 +160,63 @@ class SalesOrderController extends Controller
             ->first();
         return response()->json($model);
     }
+
+    public function getlistHead(Request $request)
+    {
+        $model = new SalesOrder();
+        $fields = $model->getTableColumns();
+        $so = SalesOrder::getPopulateSalesOrder();
+
+        if ($request->has('search')) {
+            $keyword = $request->input('search');
+            if (!empty($keyword)) {
+                $so->where(function ($query) use ($keyword, $fields) {
+                    $query->orWhere('NO_BUKTI', 'LIKE', "%$keyword%");
+                });
+            }
+        }
+
+        $filteredData = $so->get();
+        $totalRows = $so->count();
+
+        if ($request->has('sort')) {
+            if (!is_array($request->input('sort'))) {
+                $message = "Invalid array for parameter sort";
+                $data = [
+                    'result' => FALSE,
+                    'message' => $message
+                ];
+                Log::debug($request->path() . " | " . $message . " | " . print_r($_POST, TRUE));
+                return response()->json($data);
+            }
+
+            foreach ($request->input('sort') as $key => $sort) {
+                $column = $sort['column'];
+                $direction = $sort['dir'];
+                $so->orderBy($column, $direction);
+            }
+        } else {
+            $so->orderBy('NO_BUKTI', 'asc');
+        }
+        if ($request->has('current_page')) {
+            $page = $request->input('current_page');
+            $limit = $so->count();
+            if ($request->has('per_page')) {
+                $limit = $request->input('per_page');
+            }
+            $offset = ($page - 1) * $limit;
+            if ($limit > 0) {
+                $so->skip($offset)->take($limit);
+            }
+        }
+        $data = [
+            'result' => true,
+            'total' => $totalRows,
+            'per_page' => $request->has('per_page') ? $request->input('current_page') : 0,
+            'recordsFiltered' => count($filteredData),
+            'current_page' => $request->has('current_page') ? $request->input('current_page') : 0,
+            'so' => $so->get()
+        ];
+        return response()->json($data);
+    }
 }

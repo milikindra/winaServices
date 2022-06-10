@@ -46,10 +46,6 @@ class Tmp_Postok extends Model
             ->join(DB::raw('(SELECT @saldo:=0) as sx'), DB::raw('"1"'), DB::raw('"1"'))
             ->join(DB::raw('(select @nilai_saldo:=0) as rx'), DB::raw('"1"'), DB::raw('"1"'))
             ->leftjoin('pakai_head', 'tx.no_bukti', 'pakai_head.no_bukti');
-
-
-
-
         return $model;
     }
 }
