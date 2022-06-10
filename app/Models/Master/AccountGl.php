@@ -34,7 +34,7 @@ class AccountGl extends Model
 
     public static function getPopulateAccount($norek, $sdate, $edate)
     {
-        $model = self::select('tx.*', DB::raw('@saldo := @saldo + tx.debet - tx.kredit AS saldo'), DB::raw('@saldo_valas := @saldo_valas + tx.debet_us - tx.kredit_us AS saldo_valas'))
+        $model = self::select('tx.*', 'masbesar.curr', DB::raw('@saldo := @saldo + tx.debet - tx.kredit AS saldo'), DB::raw('@saldo_valas := @saldo_valas + tx.debet_us - tx.kredit_us AS saldo_valas'))
             ->from(DB::Raw('(
                 SELECT
                     0 as idxurut,
@@ -88,12 +88,14 @@ class AccountGl extends Model
                 tgl_bukti BETWEEN "' . $sdate . '" AND "' . $edate . '"
                 ORDER BY tgl_bukti ASC, debet DESC
                 ) as tx'))
+            ->leftjoin('masbesar', 'tx.no_rek', 'masbesar.NO_REK')
             ->join(DB::raw('(SELECT @saldo:=0) as sx'), DB::raw('"1"'), DB::raw('"1"'))
             ->join(DB::raw('(select @saldo_valas:=0) as rx'), DB::raw('"1"'), DB::raw('"1"'));
         return $model;
     }
 
-    public static function populateRaw(){
+    public static function populateRaw()
+    {
         $model = self::select('*');
         return $model;
     }

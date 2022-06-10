@@ -48,11 +48,11 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     protected $hidden = [
         'password'
     ];
-    public static function getLogin($username)
+    public static function getLogin($email)
     {
         $month = Carbon::now()->format('m');
         $year = Carbon::now()->format('Y');
-        $model = self::where('username', $username)->first();
+        $model = self::where('email', $email)->first();
         $model->user_access = UserAccess::where('user_id', $model->user_id)->get();
         $model->menu_name = Module::select('wina_m_module.module_name', 'wina_m_module.module_id', 'parent.module_name as parent_name')
             ->join('wina_m_module AS parent', 'parent.module_id', 'wina_m_module.parent_id')

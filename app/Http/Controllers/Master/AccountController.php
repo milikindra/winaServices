@@ -30,15 +30,15 @@ class AccountController extends Controller
         $dept_id = $request->input('dept_id');
 
         $accountGl = AccountGl::getPopulateAccount($gl_code, $sdate, $edate);
-
+        $accountGl->where(DB::RAW("(tx.idxurut!=0 OR masbesar.TIPE IN ('A','B','C','D','E','F','G','H','I','J','M'))"), true);
         if ($so_id != "null") {
-            $accountGl->orWhere('tx.no_SO', $so_id);
+            $accountGl->Where('tx.no_SO', $so_id);
         }
         if ($id_employee != "null") {
-            $accountGl->orWhere('tx.id_kyw', $id_employee);
+            $accountGl->Where('tx.id_kyw', $id_employee);
         }
         if ($dept_id != "null") {
-            $accountGl->orWhere('tx.dept', $dept_id);
+            $accountGl->Where('tx.dept', 'LIKE', "%$dept_id%");
         }
 
         if ($request->has('search')) {
@@ -51,7 +51,6 @@ class AccountController extends Controller
                 });
             }
         }
-
         $filteredData = $accountGl->get();
         $totalRows = $accountGl->count();
 

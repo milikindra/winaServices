@@ -17,13 +17,13 @@ class LoginController extends Controller
     {
         $this->validate($request, [
             'password' => 'required',
-            'username' => 'required'
+            'email' => 'required'
         ]);
-        $password = $request->input('password');
-        $username = $request->input('username');
-        $user = User::where('username', $username)->first();
+        $password = md5($request->input('password'));
+        $email = $request->input('email');
+        $user = User::where('email', $email)->first();
         if (!isset($user)) {
-            $message = 'User tidak ditemukan';
+            $message = 'User Not Found';
             Log::debug($request->path() . " | "  . $message .  " | " . print_r($_POST, TRUE));
             return response()->json([
                 'result' => FALSE,
@@ -31,29 +31,30 @@ class LoginController extends Controller
             ]);
         } else {
             if ($user->status == 1) {
-                $message = 'Akun belum aktif';
+                $message = 'Account is Not Active';
                 Log::debug($request->path() . " | "  . $message .  " | " . print_r($_POST, TRUE));
                 return response()->json([
                     'result' => FALSE,
                     'message' => $message
                 ]);
             } else {
-                $checkPassword = Hash::check($password, $user->password);
-                if ($checkPassword) {
+                // $checkPassword = Hash::check($password, $user->password);
+                // if ($checkPassword) {
+                if ($password == $user->password) {
                     if (!isset($user->api_token)) {
                         $user->api_token = User::randomString(24);
                         $user->save();
                     }
 
-                    $message = "User '$username' successfully login";
+                    $message = "User with email : '$email' successfully login";
                     Log::debug($request->path() . " | "  . $message .  " | " . print_r($_POST, TRUE));
                     return response()->json([
                         'result' => TRUE,
                         'message' => $message,
-                        'data' => User::getLogin($username),
+                        'data' => User::getLogin($email),
                     ]);
                 } else {
-                    $message = 'Password yang anda masukkan salah';
+                    $message = 'Password Wrong';
                     Log::debug($request->path() . " | "  . $message .  " | " . print_r($_POST, TRUE));
                     return response()->json([
                         'result' => FALSE,
