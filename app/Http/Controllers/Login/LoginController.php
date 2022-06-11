@@ -19,7 +19,7 @@ class LoginController extends Controller
             'password' => 'required',
             'email' => 'required'
         ]);
-        $password = md5($request->input('password'));
+	$password = md5(md5($request->input('password')));
         $email = $request->input('email');
         $user = User::where('email', $email)->first();
         if (!isset($user)) {
@@ -30,7 +30,7 @@ class LoginController extends Controller
                 'message' => $message
             ]);
         } else {
-            if ($user->status == 1) {
+            if ($user->status == 0) {
                 $message = 'Account is Not Active';
                 Log::debug($request->path() . " | "  . $message .  " | " . print_r($_POST, TRUE));
                 return response()->json([
