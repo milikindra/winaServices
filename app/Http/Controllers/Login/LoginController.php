@@ -19,7 +19,7 @@ class LoginController extends Controller
             'password' => 'required',
             'email' => 'required'
         ]);
-	$password = md5(md5($request->input('password')));
+        $password = md5(md5($request->input('password')));
         $email = $request->input('email');
         $user = User::where('email', $email)->first();
         if (!isset($user)) {
