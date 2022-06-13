@@ -32,13 +32,15 @@ class AccountController extends Controller
 
         $accountGl = AccountGl::getPopulateAccount($gl_code, $sdate, $edate);
         $accountGl->where(DB::RAW("(tx.idxurut!=0 OR masbesar.TIPE IN ('A','B','C','D','E','F','G','H','I','J','M'))"), true);
-        if ($so_id != "null") {
+
+
+        if ($so_id != null && $so_id != "null") {
             $accountGl->Where('tx.no_SO', $so_id);
         }
-        if ($id_employee != "null") {
+        if ($id_employee != 'all') {
             $accountGl->Where('tx.id_kyw', $id_employee);
         }
-        if ($dept_id != "null") {
+        if ($dept_id != "all") {
             $accountGl->Where('tx.dept', 'LIKE', "%$dept_id%");
         }
 
@@ -168,8 +170,17 @@ class AccountController extends Controller
         $fields = $model->getTableColumns();
         $sdate = $request->input('sdate');
         $edate = $request->input('edate');
-
+        $trx_type = $request->input('trx_type');
+        $trx_id = $request->input('trx_id');
         $coaTrx = GlCard::whereBetween('tgl_bukti', [$sdate, $edate]);
+        if ($trx_id != 'all') {
+            $trx_id = str_replace(":", "/",  $request->input('trx_id'));
+            $coaTrx->where('no_bukti', $trx_id);
+        }
+        if ($trx_type != 'all') {
+            $coaTrx->where('trx', $trx_type);
+        }
+
 
         if ($request->has('search')) {
             $keyword = $request->input('search');
@@ -181,28 +192,29 @@ class AccountController extends Controller
                 });
             }
         }
+
         $filteredData = $coaTrx->get();
         $totalRows = $coaTrx->count();
 
-        if ($request->has('sort')) {
-            if (!is_array($request->input('sort'))) {
-                $message = "Invalid array for parameter sort";
-                $data = [
-                    'result' => FALSE,
-                    'message' => $message
-                ];
-                Log::debug($request->path() . " | " . $message . " | " . print_r($_POST, TRUE));
-                return response()->json($data);
-            }
+        // if ($request->has('sort')) {
+        //     if (!is_array($request->input('sort'))) {
+        //         $message = "Invalid array for parameter sort";
+        //         $data = [
+        //             'result' => FALSE,
+        //             'message' => $message
+        //         ];
+        //         Log::debug($request->path() . " | " . $message . " | " . print_r($_POST, TRUE));
+        //         return response()->json($data);
+        //     }
 
-            foreach ($request->input('sort') as $key => $sort) {
-                $column = $sort['column'];
-                $direction = $sort['dir'];
-                $coaTrx->orderBy($column, $direction);
-            }
-        } else {
-            $coaTrx->orderBy('no_bukti', 'asc');
-        }
+        //     foreach ($request->input('sort') as $key => $sort) {
+        //         $column = $sort['column'];
+        //         $direction = $sort['dir'];
+        //         $coaTrx->orderBy($column, $direction);
+        //     }
+        // } else {
+        // }
+        $coaTrx->orderBy('no_bukti', 'asc');
 
         if ($request->has('current_page')) {
             $page = $request->input('current_page');
@@ -226,5 +238,11 @@ class AccountController extends Controller
         ];
 
         return response()->json($data);
+    }
+
+    public function trxTypeFromGlCard()
+    {
+        $model = GlCard::distinct()->get(['trx']);
+        return response()->json($model);
     }
 }

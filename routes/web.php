@@ -58,6 +58,7 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
     $router->post('accountGl/getListAccountHistory', ['uses' =>  'AccountController@getListAccountHistory', 'as' => 'AccountController/getListAccountHistory']);
     $router->post('accountGl/getListAccount', ['uses' =>  'AccountController@getListAccount', 'as' => 'AccountController/getListAccount']);
     $router->post('accountGl/getListCoaTransaction', ['uses' =>  'AccountController@getListCoaTransaction', 'as' => 'AccountController/getListCoaTransaction']);
+    $router->post('trxTypeFromGlCard', ['uses' => 'AccountController@trxTypeFromGlCard', 'as' => 'trxTypeFromGlCard']);
 
 
     // customer
@@ -76,9 +77,6 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
 
     // vat
     $router->post('vatGetRawData', ['uses' => 'VatController@vatGetRawData', 'as' => 'vatGetRawData']);
-
-    // accountGl
-    // $router->post('accountGl/getList', ['uses' =>  'AccountGeneralLedgerController@getList', 'as' => 'AccountGeneralLedgerController/getList']);
 });
 
 $router->group(['namespace' => 'Transaction'], function () use ($router) {
