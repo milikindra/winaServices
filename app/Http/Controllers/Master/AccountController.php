@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 use App\Tree\ModuleNode;
 use App\Models\Master\AccountGl;
+use App\Models\Master\GlCard;
 
 class AccountController extends Controller
 {
@@ -156,6 +157,72 @@ class AccountController extends Controller
             'recordsFiltered' => count($filteredData),
             'current_page' => $request->has('current_page') ? $request->input('current_page') : 0,
             'accountGl' => $accountGl->get()
+        ];
+
+        return response()->json($data);
+    }
+
+    public function getListCoaTransaction(request $request)
+    {
+        $model = new GlCard();
+        $fields = $model->getTableColumns();
+        $sdate = $request->input('sdate');
+        $edate = $request->input('edate');
+
+        $coaTrx = GlCard::whereBetween('tgl_bukti', [$sdate, $edate]);
+
+        if ($request->has('search')) {
+            $keyword = $request->input('search');
+            if (!empty($keyword)) {
+                $coaTrx->where(function ($query) use ($keyword, $fields) {
+                    $query->orWhere('no_rek', 'LIKE', "%$keyword%")
+                        ->orWhere('trx', 'LIKE', "%$keyword%")
+                        ->orWhere('nm_rek', 'LIKE', "%$keyword%");
+                });
+            }
+        }
+        $filteredData = $coaTrx->get();
+        $totalRows = $coaTrx->count();
+
+        if ($request->has('sort')) {
+            if (!is_array($request->input('sort'))) {
+                $message = "Invalid array for parameter sort";
+                $data = [
+                    'result' => FALSE,
+                    'message' => $message
+                ];
+                Log::debug($request->path() . " | " . $message . " | " . print_r($_POST, TRUE));
+                return response()->json($data);
+            }
+
+            foreach ($request->input('sort') as $key => $sort) {
+                $column = $sort['column'];
+                $direction = $sort['dir'];
+                $coaTrx->orderBy($column, $direction);
+            }
+        } else {
+            $coaTrx->orderBy('no_bukti', 'asc');
+        }
+
+        if ($request->has('current_page')) {
+            $page = $request->input('current_page');
+            $limit = $coaTrx->count();
+            if ($request->has('per_page')) {
+                $limit = $request->input('per_page');
+            }
+            $offset = ($page - 1) * $limit;
+            if ($limit > 0) {
+                $coaTrx->skip($offset)->take($limit);
+            }
+        }
+
+        $data = [
+            'result' => true,
+            'total' => $totalRows,
+            'per_page' => $request->has('per_page') ? $request->input('current_page') : 0,
+            'recordsFiltered' => count($filteredData),
+            'current_page' => $request->has('current_page') ? $request->input('current_page') : 0,
+            'coaTrx' => $coaTrx->get()
         ];
 
         return response()->json($data);
