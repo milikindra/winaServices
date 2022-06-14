@@ -99,4 +99,10 @@ class GlCard extends Model
         $model = self::select('*');
         return $model;
     }
+
+    public static function getDistinctTransaction()
+    {
+        $model = self::select(DB::RAW("distinct (no_bukti) AS no_bukti"));
+        return $model;
+    }
 }

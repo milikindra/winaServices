@@ -240,6 +240,44 @@ class AccountController extends Controller
         return response()->json($data);
     }
 
+    public function getListGlGroupTransaction(request $request)
+    {
+        $model = new GlCard();
+        $fields = $model->getTableColumns();
+        $sdate = $request->input('sdate');
+        $edate = $request->input('edate');
+        $trx_type = $request->input('trx_type');
+        $trx_id = $request->input('trx_id');
+
+        $no_bukti = GlCard::select('*');
+        $no_bukti->whereBetween('tgl_bukti', [$sdate, $edate]);
+        if ($trx_id != 'all') {
+            $trx_id = str_replace(":", "/",  $request->input('trx_id'));
+            $no_bukti->where('no_bukti', $trx_id);
+        }
+        if ($trx_type != 'all') {
+            $no_bukti->where('trx', $trx_type);
+        }
+
+        $no_bukti->groupby('no_bukti');
+        $no_bukti->orderBy('no_bukti', 'asc');
+        $bukti = $no_bukti->get();
+        $coaTrx = [];
+
+        foreach ($bukti as $no_bukti) {
+            $coaTrx[] = [
+                'head' => $no_bukti,
+                'child' => GLCard::where('no_bukti', $no_bukti->no_bukti)->orderBy('no_rek', 'asc')->get()
+            ];
+        }
+        $data = [
+            'result' => true,
+            'coaTrx' => $coaTrx
+        ];
+
+        return response()->json($data);
+    }
+
     public function trxTypeFromGlCard()
     {
         $model = GlCard::distinct()->get(['trx']);

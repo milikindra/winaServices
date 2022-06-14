@@ -99,4 +99,5 @@ class AccountGl extends Model
         $model = self::select('*');
         return $model;
     }
+
 }
