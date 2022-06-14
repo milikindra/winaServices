@@ -51,6 +51,7 @@ class EmployeeController extends Controller
         }
 
         $filteredData = $employee->get();
+        Log::debug($employee->toSql());
         $totalRows = $employee->count();
 
         if ($request->has('sort')) {
