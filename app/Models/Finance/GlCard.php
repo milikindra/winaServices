@@ -1,9 +1,8 @@
 <?php
 
-namespace App\Models\Master;
+namespace App\Models\Finance;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 

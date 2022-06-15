@@ -93,11 +93,14 @@ $router->group(['namespace' => 'Transaction'], function () use ($router) {
 });
 
 $router->group(['namespace' => 'Report'], function () use ($router) {
-    $router->post('reportPosisiStock', ['uses' =>  'ReportStockController@reportPosisiStock', 'as' => 'reportPosisiStock']);
     //ReportStock
+    $router->post('reportPosisiStock', ['uses' =>  'ReportStockController@reportPosisiStock', 'as' => 'reportPosisiStock']);
 });
 
 $router->group(['namespace' => 'Finance'], function () use ($router) {
     // generalLedger
     // $router->post('generalLedger/getListAccount', ['uses' =>  'GeneralLedgerController@getListAccount', 'as' => 'generalLedger/getListAccount']);
+
+    // financialReport
+    $router->post('financialReport/getListIncomeStatement', ['uses' =>  'FinancialReportController@getListIncomeStatement', 'as' => 'financialReport/getListIncomeStatement']);
 });

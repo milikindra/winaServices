@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 use App\Tree\ModuleNode;
 use App\Models\Master\AccountGl;
-use App\Models\Master\GlCard;
+use App\Models\Finance\GlCard;
 
 class AccountController extends Controller
 {
