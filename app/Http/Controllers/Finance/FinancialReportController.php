@@ -22,20 +22,24 @@ class FinancialReportController extends Controller
 
     public function getListIncomeStatement(request $request)
     {
+
         $model = new AccountGl();
         $fields = $model->getTableColumns();
         $sdate = $request->input('sdate');
         $edate = $request->input('edate');
-        $isTotal = $request->input('isTotal');
-        $isParent = $request->input('isParent');
-        $isChild = $request->input('isChild');
-        $isZero = $request->input('isZero');
-        $isTotalParent = $request->input('isTotalParent');
+
+        $isTotal = ($request->input('isTotal') == "Y") ? "Y" : "";
+        $isParent = ($request->input('isParent') == "Y") ? "Y" : "";
+        $isChild = ($request->input('isChild') == "Y") ? "Y" : "";
+        $isZero = ($request->input('isZero') == "Y") ? "Y" : "";
+        $isTotalParent = ($request->input('isTotalParent') == "Y") ? "Y" : "";
         $isRecord = "Y";
         $accountPercent = "";
-        $isPercent = $request->input('isPercent');
-        $isValas = $request->input('isValas');
-        $isShowCoa = $request->input('isShowCoa');
+        $isPercent = ($request->input('isPercent') == "Y") ? "Y" : "";
+        $isValas = ($request->input('isValas') == "Y") ? "Y" : "";
+        $isShowCoa = ($request->input('isShowCoa') == "Y") ? "Y" : "";
+
+
 
         DB::select("CALL TF_RL('$sdate', '$edate', '$isTotal', '$isParent', '$isChild', '$isZero', '$isTotalParent','$isRecord','$accountPercent','$isPercent', '$isValas', '$isShowCoa')");
         $model = new Tmp_Bbrl();
@@ -46,7 +50,6 @@ class FinancialReportController extends Controller
         } else {
             $bbrl->addSelect(DB::RAW("'' AS no_rek2"));
         }
-
 
         if ($isPercent == "Y") {
             $nilaiJual = $bbrl2->where('nm_rek', 'Total OPERATING REVENUE')->get()->toArray();
