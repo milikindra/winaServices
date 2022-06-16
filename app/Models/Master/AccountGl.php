@@ -48,11 +48,30 @@ class AccountGl extends Model
                     "" as no_pajak,
                     "" as tag,
                     "Initial Balance" as uraian,
-                    if (sum(glcard.debet-glcard.kredit)+besarthbl.sawal>0,sum( glcard.debet - glcard.kredit )+besarthbl.sawal,0) AS debet,
-                    if (sum(glcard.debet_us-glcard.kredit_us)+besarthbl.sawal_us>0,sum(glcard.debet_us-glcard.kredit_us)+besarthbl.sawal_us,0) AS debet_us,
-		    if (sum(glcard.debet-glcard.kredit)+besarthbl.sawal<0,sum( glcard.debet - glcard.kredit )+besarthbl.sawal,0)*-1 AS kredit,
-                    if (sum(glcard.debet_us-glcard.kredit_us)+besarthbl.sawal_us<0,sum(glcard.debet_us-glcard.kredit_us)+besarthbl.sawal_us,0)*-1 AS kredit_us,
-                    "" as dept 
+                   IF	(
+                    sum( ifnull(glcard.debet,0) - ifnull(glcard.kredit,0) )+ ifnull(besarthbl.sawal,0) > 0,
+                    sum( ifnull(glcard.debet,0) - ifnull(glcard.kredit,0) )+ ifnull(besarthbl.sawal,0),
+                    0 
+                    ) AS debet,
+                    IF
+                        (
+                            sum( ifnull(glcard.debet_us,0) - ifnull(glcard.kredit_us,0) )+ ifnull(besarthbl.sawal_us,0) > 0,
+                            sum( ifnull(glcard.debet_us,0) - ifnull(glcard.kredit_us,0) )+ ifnull(besarthbl.sawal_us,0),
+                            0 
+                        ) AS debet_us,
+                    IF
+                        (
+                            sum( ifnull(glcard.debet,0) - ifnull(glcard.kredit,0) )+ ifnull(besarthbl.sawal,0) < 0,
+                            sum( ifnull(glcard.debet,0) - ifnull(glcard.kredit,0) )+ ifnull(besarthbl.sawal,0),
+                            0 
+                        )*- 1 AS kredit,
+                    IF
+                        (
+                            sum( ifnull(glcard.debet_us,0) - ifnull(glcard.kredit_us,0) )+ ifnull(besarthbl.sawal_us,0) < 0,
+                            sum( ifnull(glcard.debet_us,0) - ifnull(glcard.kredit_us,0) )+ ifnull(besarthbl.sawal_us,0),
+                            0 
+                        )*- 1 AS kredit_us,
+                "" AS dept 
                     
                 FROM
                     glcard
