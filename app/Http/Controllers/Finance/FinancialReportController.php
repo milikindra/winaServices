@@ -6,24 +6,15 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
-
 use App\Tree\ModuleNode;
-use App\Models\Master\AccountGl;
-use App\Models\Master\GlCard;
-use App\Models\Finance\Tmp_Bbrl;
+use App\Models\Finance\Tmp_IncomeStatement;
+use App\Models\Finance\Tmp_BalanceSheet;
 
 class FinancialReportController extends Controller
 {
-    // public function accountGetRawData()
-    // {
-    //     $model = accountGl::getAll();
-    //     return response()->json($model);
-    // }
-
     public function getListIncomeStatement(request $request)
     {
-
-        $model = new AccountGl();
+        $model = new Tmp_IncomeStatement();
         $fields = $model->getTableColumns();
         $sdate = $request->input('sdate');
         $edate = $request->input('edate');
@@ -39,12 +30,10 @@ class FinancialReportController extends Controller
         $isValas = ($request->input('isValas') == "Y") ? "Y" : "";
         $isShowCoa = ($request->input('isShowCoa') == "Y") ? "Y" : "";
 
-
-
         DB::select("CALL TF_RL('$sdate', '$edate', '$isTotal', '$isParent', '$isChild', '$isZero', '$isTotalParent','$isRecord','$accountPercent','$isPercent', '$isValas', '$isShowCoa')");
-        $model = new Tmp_Bbrl();
-        $bbrl = Tmp_Bbrl::getPopulateBbrl();
-        $bbrl2 = Tmp_Bbrl::getPopulateBbrl();
+        $model = new Tmp_IncomeStatement();
+        $bbrl = Tmp_IncomeStatement::getPopulate();
+        $bbrl2 = Tmp_IncomeStatement::getPopulate();
         if ($isShowCoa == "Y") {
             $bbrl->addSelect(DB::RAW("no_rek AS no_rek2"));
         } else {
@@ -58,28 +47,9 @@ class FinancialReportController extends Controller
             $bbrl->addSelect(DB::RAW("'' AS persen"));
         }
 
-
         $filteredData = $bbrl->get();
         $totalRows = $bbrl->count();
-        // if ($request->has('sort')) {
-        //     if (!is_array($request->input('sort'))) {
-        //         $message = "Invalid array for parameter sort";
-        //         $data = [
-        //             'result' => FALSE,
-        //             'message' => $message
-        //         ];
-        //         Log::debug($request->path() . " | " . $message . " | " . print_r($_POST, TRUE));
-        //         return response()->json($data);
-        //     }
 
-        //     // foreach ($request->input('sort') as $key => $sort) {
-        //     //     $column = $sort['column'];
-        //     //     $direction = $sort['dir'];
-        //     //     $bbrl->orderBy($column, $direction);
-        //     // }
-        // } else {
-        //     $bbrl->orderBy('urut', 'asc');
-        // }
         $bbrl->orderBy('urut', 'asc');
         if ($request->has('current_page')) {
             $page = $request->input('current_page');
@@ -99,6 +69,50 @@ class FinancialReportController extends Controller
             'recordsFiltered' => count($filteredData),
             'current_page' => $request->has('current_page') ? $request->input('current_page') : 0,
             'bbrl' => $bbrl->get()
+        ];
+
+        return response()->json($data);
+    }
+
+    public function getListBalanceSheet(request $request)
+    {
+        $model = new Tmp_BalanceSheet();
+        $fields = $model->getTableColumns();
+        $edate = $request->input('edate');
+        $isTotal = ($request->input('isTotal') == "Y") ? "Y" : "";
+        $isParent = ($request->input('isParent') == "Y") ? "Y" : "";
+        $isChild = ($request->input('isChild') == "Y") ? "Y" : "";
+        $isZero = ($request->input('isZero') == "Y") ? "Y" : "";
+        $isTotalParent = ($request->input('isTotalParent') == "Y") ? "Y" : "";
+        $isValas = ($request->input('isValas') == "Y") ? "Y" : "";
+        $isShowCoa = ($request->input('isShowCoa') == "Y") ? "Y" : "";
+
+        DB::select("CALL TF_NRC2('$edate', '$isTotal', '$isParent', '$isChild', '$isZero', '$isTotalParent', '$isValas', '$isShowCoa')");
+        $model = new Tmp_BalanceSheet();
+        $balance = Tmp_BalanceSheet::getPopulate();
+        if ($isShowCoa == "Y") {
+            $balance->addSelect(DB::RAW("no_rek AS no_rek2"));
+        } else {
+            $balance->addSelect(DB::RAW("'' AS no_rek2"));
+        }
+
+        if ($isValas == "Y") {
+            $balance->addSelect(DB::RAW("IF(curr <> 'IDR' AND curr <> '',CONCAT(CONVERT(FORMAT(nilai_valas, 2) using utf8),' ',curr),'') AS valas"));
+        } else {
+            $balance->addSelect(DB::RAW("'' AS valas"));
+        }
+
+        $filteredData = $balance->get();
+        $totalRows = $balance->count();
+        $balance->orderBy('urut', 'asc');
+
+        $data = [
+            'result' => true,
+            'total' => $totalRows,
+            'per_page' => $request->has('per_page') ? $request->input('current_page') : 0,
+            'recordsFiltered' => count($filteredData),
+            'current_page' => $request->has('current_page') ? $request->input('current_page') : 0,
+            'balance' => $balance->get()
         ];
 
         return response()->json($data);
