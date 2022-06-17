@@ -165,7 +165,7 @@ class SalesOrderController extends Controller
     {
         $model = new SalesOrder();
         $fields = $model->getTableColumns();
-        $so = SalesOrder::getPopulateSalesOrder();
+        $so = SalesOrder::getPopulateSalesOrderHead();
 
         if ($request->has('search')) {
             $keyword = $request->input('search');

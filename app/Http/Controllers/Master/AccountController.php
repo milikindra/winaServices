@@ -57,6 +57,7 @@ class AccountController extends Controller
         $accountGl->orderBy('tgl_bukti', 'asc');
         $accountGl->orderBy('idxurut', 'asc');
         $filteredData = $accountGl->get();
+        // Log::debug($accountGl->toSql());
         $totalRows = $accountGl->count();
 
         if ($request->has('sort')) {

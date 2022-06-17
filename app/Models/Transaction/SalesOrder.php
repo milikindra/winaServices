@@ -37,6 +37,11 @@ class SalesOrder extends Model
         $model = DB::table('wina_v_salesorder');
         return $model;
     }
+    public static function getPopulateSalesOrderHead()
+    {
+        $model = self::select('*');
+        return $model;
+    }
 
     public static function getPopulateSalesOrderDetail()
     {

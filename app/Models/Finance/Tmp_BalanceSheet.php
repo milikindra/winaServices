@@ -7,10 +7,10 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
-class Tmp_Bbrl extends Model
+class Tmp_BalanceSheet extends Model
 {
 
-    protected $table = '_BBRL2';
+    protected $table = '_BBNRC2';
     protected $primaryKey = null;
     public $timestamps = false;
     public $incrementing = false;
@@ -32,7 +32,7 @@ class Tmp_Bbrl extends Model
         return $model;
     }
 
-    public static function getPopulateBbrl()
+    public static function getPopulate()
     {
         $model = self::select('*');
 

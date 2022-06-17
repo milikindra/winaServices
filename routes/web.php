@@ -103,4 +103,6 @@ $router->group(['namespace' => 'Finance'], function () use ($router) {
 
     // financialReport
     $router->post('financialReport/getListIncomeStatement', ['uses' =>  'FinancialReportController@getListIncomeStatement', 'as' => 'financialReport/getListIncomeStatement']);
+    $router->post('financialReport/getListBalanceSheet', ['uses' =>  'FinancialReportController@getListBalanceSheet', 'as' => 'financialReport/getListBalanceSheet']);
+    $router->post('financialReport/getTrlProject', ['uses' =>  'FinancialReportController@getTrlProject', 'as' => 'financialReport/getTrlProject']);
 });
