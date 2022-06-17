@@ -73,6 +73,7 @@ class FinancialReportController extends Controller
 
         return response()->json($data);
     }
+<<<<<<< .mine
 
     public function getListBalanceSheet(request $request)
     {
@@ -122,4 +123,55 @@ class FinancialReportController extends Controller
     {
         Log::debug($request);
     }
+=======
+
+    public function getListBalanceSheet(request $request)
+    {
+        $model = new Tmp_BalanceSheet();
+        $fields = $model->getTableColumns();
+        $edate = $request->input('edate');
+        $isTotal = ($request->input('isTotal') == "Y") ? "Y" : "";
+        $isParent = ($request->input('isParent') == "Y") ? "Y" : "";
+        $isChild = ($request->input('isChild') == "Y") ? "Y" : "";
+        $isZero = ($request->input('isZero') == "Y") ? "Y" : "";
+        $isTotalParent = ($request->input('isTotalParent') == "Y") ? "Y" : "";
+        $isValas = ($request->input('isValas') == "Y") ? "Y" : "";
+        $isShowCoa = ($request->input('isShowCoa') == "Y") ? "Y" : "";
+
+        DB::select("CALL TF_NRC2('$edate', '$isTotal', '$isParent', '$isChild', '$isZero', '$isTotalParent', '$isValas', '$isShowCoa')");
+        $model = new Tmp_BalanceSheet();
+        $balance = Tmp_BalanceSheet::getPopulate();
+        if ($isShowCoa == "Y") {
+            $balance->addSelect(DB::RAW("no_rek AS no_rek2"));
+        } else {
+            $balance->addSelect(DB::RAW("'' AS no_rek2"));
+        }
+
+        if ($isValas == "Y") {
+            $balance->addSelect(DB::RAW("IF(curr <> 'IDR' AND curr <> '',CONCAT(CONVERT(FORMAT(nilai_valas, 2) using utf8),' ',curr),'') AS valas"));
+        } else {
+            $balance->addSelect(DB::RAW("'' AS valas"));
+        }
+
+        $filteredData = $balance->get();
+        $totalRows = $balance->count();
+        $balance->orderBy('urut', 'asc');
+
+        $data = [
+            'result' => true,
+            'total' => $totalRows,
+            'per_page' => $request->has('per_page') ? $request->input('current_page') : 0,
+            'recordsFiltered' => count($filteredData),
+            'current_page' => $request->has('current_page') ? $request->input('current_page') : 0,
+            'balance' => $balance->get()
+        ];
+
+        return response()->json($data);
+    }
+
+
+
+
+
+>>>>>>> .theirs
 }
