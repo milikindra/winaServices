@@ -7,10 +7,10 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
-class Tmp_IncomeStatement extends Model
+class Tmp_PnlProject extends Model
 {
 
-    protected $table = '_BBRL2';
+    protected $table = '_BBRLSO2';
     protected $primaryKey = null;
     public $timestamps = false;
     public $incrementing = false;

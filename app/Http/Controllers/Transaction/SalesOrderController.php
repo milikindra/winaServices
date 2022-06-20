@@ -219,4 +219,13 @@ class SalesOrderController extends Controller
         ];
         return response()->json($data);
     }
+
+    public function soGetById(Request $request)
+    {
+        $data = [
+            'result' => true,
+            'so' => SalesOrder::where('NO_BUKTI', $request->input('so_id'))->get()
+        ];
+        return response()->json($data);
+    }
 }

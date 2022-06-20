@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\DB;
 use App\Tree\ModuleNode;
 use App\Models\Finance\Tmp_IncomeStatement;
 use App\Models\Finance\Tmp_BalanceSheet;
+use App\Models\Master\PnlProjectDef;
+use App\Models\Finance\PnlProject;
+use App\Models\Finance\Tmp_PnlProject;
+use App\Models\Transaction\SalesOrder;
+// use PhpOffice\PhpSpreadsheet\Writer\Xlsx\Rels;
 
 class FinancialReportController extends Controller
 {
@@ -116,5 +121,112 @@ class FinancialReportController extends Controller
         ];
 
         return response()->json($data);
+    }
+
+    public function getListPnlProject(request $request)
+    {
+        $model = new Tmp_PnlProject();
+        $fields = $model->getTableColumns();
+        $sdate = '2000-01-01';
+        $edate = $request->input('edate');
+        $so_id = $request->input('so_id');
+        $isAssumptionCost = ($request->input('isAssumptionCost') == "Y") ? "Y" : "";
+        $isOverhead = ($request->input('isOverhead') == "Y") ? "Y" : "";
+        $isShowRecord = "Y";
+
+        DB::select("CALL TF_RL_SO('$so_id','$sdate','$edate', '$isOverhead', '$isAssumptionCost','$isShowRecord')");
+        $model = new Tmp_PnlProject();
+        $balance = Tmp_PnlProject::getPopulate();
+
+        $filteredData = $balance->get();
+        $totalRows = $balance->count();
+        $balance->orderBy('urut', 'asc');
+
+        $data = [
+            'result' => true,
+            'total' => $totalRows,
+            'per_page' => $request->has('per_page') ? $request->input('current_page') : 0,
+            'recordsFiltered' => count($filteredData),
+            'current_page' => $request->has('current_page') ? $request->input('current_page') : 0,
+            'balance' => $balance->get()
+        ];
+
+        return response()->json($data);
+    }
+
+
+    public function getPnlProject(Request $request)
+    {
+        $model = new PnlProject();
+        $fields = $model->getTableColumns();
+        $so_id = $request->input('so_id');
+        $commision = PnlProject::getPopulate();
+        $commision->where('no_so', $so_id);
+        $commision->orderBy('idx', 'asc');
+        $result = $commision->get();
+        $c = count($result);
+        if ($c == 0) {
+            $commision = PnlProjectDef::getPopulate();
+            $commision->orderBy('idx', 'asc');
+            $result = $commision->get();
+        }
+        $data = [
+            'result' => true,
+            'balance' => $result
+        ];
+
+        return response()->json($data);
+    }
+
+    public function pnlProjectSave(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $so_id = $request->so_id;
+            PnlProject::where('no_so', $so_id)->delete();
+            $i = 0;
+            foreach ($request->data as $data) {
+                $idx = $i + 1;
+                if ($data['type'] == 'prosen') {
+                    $post = [
+                        'ket' => $data['ket'],
+                        'no_so' => $so_id,
+                        'rate' => floatval($data['value']),
+                        'nilai' => 0,
+                        'idx' => $idx
+                    ];
+                } else {
+                    $post = [
+                        'ket' => $data['ket'],
+                        'no_so' => $so_id,
+                        'rate' => 0,
+                        'nilai' =>  floatval($data['value']),
+                        'idx' => $idx
+                    ];
+                }
+                $model = PnlProject::addData($post);
+                $i++;
+            }
+            $ph = SalesOrder::find($so_id);
+            $ph->note_ph = $request->note_ph;
+            $ph->save();
+
+            DB::commit();
+            $message = 'Succesfully save data.';
+            $data = [
+                "result" => true,
+                'message' => $message,
+            ];
+            return $data;
+        } catch (\Exception $e) {
+            DB::rollback();
+            $message = 'Terjadi Error Server.';
+            $data = [
+                "result" => false,
+                'message' => $message
+            ];
+            Log::debug($request->path() . " | "  . $message .  " | " . print_r($request->input(), TRUE));
+            return $data;
+        }
     }
 }

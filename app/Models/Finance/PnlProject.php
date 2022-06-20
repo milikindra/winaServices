@@ -7,14 +7,23 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
-class Tmp_IncomeStatement extends Model
+class PnlProject extends Model
 {
 
-    protected $table = '_BBRL2';
+    protected $table = 'trl_project';
     protected $primaryKey = null;
     public $timestamps = false;
-    public $incrementing = false;
+    const CREATED_AT = false;
+    const UPDATED_AT = false;
+    protected $guarded = [];
 
+    protected $fillable = [
+        'ket',
+        'rate',
+        'idx',
+        'nilai',
+        'no_so'
+    ];
 
     public function getTableColumns()
     {
@@ -32,9 +41,16 @@ class Tmp_IncomeStatement extends Model
         return $model;
     }
 
+
     public static function getPopulate()
     {
         $model = self::select('*');
+        return $model;
+    }
+
+    public static function addData($request)
+    {
+        $model = DB::insert("insert into trl_project (ket, no_so,rate,nilai, idx) values ('" . $request['ket'] . "', '" . $request['no_so'] . "','" . $request['rate'] . "','" . $request['nilai'] . "', '" . $request['idx'] . "')");
         return $model;
     }
 }

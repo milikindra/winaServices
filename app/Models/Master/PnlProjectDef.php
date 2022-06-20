@@ -1,20 +1,19 @@
 <?php
 
-namespace App\Models\Finance;
+namespace App\Models\Master;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
-class Tmp_IncomeStatement extends Model
+class PnlProjectDef extends Model
 {
 
-    protected $table = '_BBRL2';
+    protected $table = 'trl_project_def';
     protected $primaryKey = null;
-    public $timestamps = false;
-    public $incrementing = false;
-
+    const CREATED_AT = false;
+    const UPDATED_AT = false;
 
     public function getTableColumns()
     {
@@ -31,6 +30,7 @@ class Tmp_IncomeStatement extends Model
         $model = self::get();
         return $model;
     }
+
 
     public static function getPopulate()
     {
