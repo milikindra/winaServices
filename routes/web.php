@@ -59,6 +59,7 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
     $router->post('accountGl/getListAccount', ['uses' =>  'AccountController@getListAccount', 'as' => 'AccountController/getListAccount']);
     $router->post('accountGl/getListCoaTransaction', ['uses' =>  'AccountController@getListCoaTransaction', 'as' => 'AccountController/getListCoaTransaction']);
     $router->post('accountGl/getListGlGroupTransaction', ['uses' =>  'AccountController@getListGlGroupTransaction', 'as' => 'AccountController/getListGlGroupTransaction']);
+    $router->post('accountGl/getListCashBankDetail', ['uses' =>  'AccountController@getListCashBankDetail', 'as' => 'AccountController/getListCashBankDetail']);
     $router->post('trxTypeFromGlCard', ['uses' => 'AccountController@trxTypeFromGlCard', 'as' => 'trxTypeFromGlCard']);
 
 
