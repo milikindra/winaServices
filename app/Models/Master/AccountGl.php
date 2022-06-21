@@ -130,7 +130,7 @@ class AccountGl extends Model
                     "" AS NO_REK2,
                     "" AS tag,
                     "" as Nomor,
-                    CAST( "2022-06-01" AS DATE ) AS tgl_bukti,
+                    CAST( "' . $sdate . '" AS DATE ) AS tgl_bukti,
                     "Initial Balance" AS uraian,
                 IF
                     (
