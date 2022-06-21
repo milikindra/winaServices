@@ -306,7 +306,6 @@ class AccountController extends Controller
         }
 
         $filteredData = $cashBank->get();
-        Log::debug($cashBank->toSql());
         $totalRows = $cashBank->count();
 
         if ($request->has('sort')) {
