@@ -108,6 +108,7 @@ $router->group(['namespace' => 'Finance'], function () use ($router) {
     $router->post('financialReport/getListIncomeStatement', ['uses' =>  'FinancialReportController@getListIncomeStatement', 'as' => 'financialReport/getListIncomeStatement']);
     $router->post('financialReport/getListBalanceSheet', ['uses' =>  'FinancialReportController@getListBalanceSheet', 'as' => 'financialReport/getListBalanceSheet']);
     $router->post('financialReport/getListPnlProject', ['uses' =>  'FinancialReportController@getListPnlProject', 'as' => 'financialReport/getListPnlProject']);
+    $router->post('financialReport/getListPnlProjectList', ['uses' =>  'FinancialReportController@getListPnlProjectList', 'as' => 'financialReport/getListPnlProjectList']);
     $router->post('getPnlProject', ['uses' =>  'FinancialReportController@getPnlProject', 'as' => 'getPnlProject']);
     $router->post('pnlProjectSave', ['uses' =>  'FinancialReportController@pnlProjectSave', 'as' => 'pnlProjectSave']);
 });

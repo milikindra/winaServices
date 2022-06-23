@@ -9,8 +9,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\User;
 
-
-
 class LoginController extends Controller
 {
     public function login(Request $request)
@@ -23,7 +21,7 @@ class LoginController extends Controller
         $email = $request->input('email');
         $user = User::where('email', $email)->first();
         if (!isset($user)) {
-            $message = 'User Not Found';
+            $message = 'User with email :' . $email . ' Not Found';
             Log::debug($request->path() . " | "  . $message .  " | " . print_r($_POST, TRUE));
             return response()->json([
                 'result' => FALSE,
@@ -31,7 +29,7 @@ class LoginController extends Controller
             ]);
         } else {
             if ($user->status == 0) {
-                $message = 'Account is Not Active';
+                $message = 'Account with username : ' . $user->username . ' is Not Active';
                 Log::debug($request->path() . " | "  . $message .  " | " . print_r($_POST, TRUE));
                 return response()->json([
                     'result' => FALSE,
@@ -46,8 +44,8 @@ class LoginController extends Controller
                         $user->save();
                     }
 
-                    $message = "User with email : '$email' successfully login";
-                    Log::debug($request->path() . " | "  . $message .  " | " . print_r($_POST, TRUE));
+                    $message = "User with username : '$user->username' and email : '$email' successfully login";
+                    Log::debug($request->path() . " | "  . $message);
                     return response()->json([
                         'result' => TRUE,
                         'message' => $message,

@@ -12,6 +12,7 @@ use App\Models\Finance\Tmp_BalanceSheet;
 use App\Models\Master\PnlProjectDef;
 use App\Models\Finance\PnlProject;
 use App\Models\Finance\Tmp_PnlProject;
+use App\Models\Finance\Tmp_PnlProjectList;
 use App\Models\Transaction\SalesOrder;
 // use PhpOffice\PhpSpreadsheet\Writer\Xlsx\Rels;
 
@@ -23,7 +24,6 @@ class FinancialReportController extends Controller
         $fields = $model->getTableColumns();
         $sdate = $request->input('sdate');
         $edate = $request->input('edate');
-
         $isTotal = ($request->input('isTotal') == "Y") ? "Y" : "";
         $isParent = ($request->input('isParent') == "Y") ? "Y" : "";
         $isChild = ($request->input('isChild') == "Y") ? "Y" : "";
@@ -51,28 +51,9 @@ class FinancialReportController extends Controller
         } else {
             $bbrl->addSelect(DB::RAW("'' AS persen"));
         }
-
-        $filteredData = $bbrl->get();
-        $totalRows = $bbrl->count();
-
         $bbrl->orderBy('urut', 'asc');
-        if ($request->has('current_page')) {
-            $page = $request->input('current_page');
-            $limit = $bbrl->count();
-            if ($request->has('per_page')) {
-                $limit = $request->input('per_page');
-            }
-            $offset = ($page - 1) * $limit;
-            if ($limit > 0) {
-                $bbrl->skip($offset)->take($limit);
-            }
-        }
         $data = [
             'result' => true,
-            'total' => $totalRows,
-            'per_page' => $request->has('per_page') ? $request->input('current_page') : 0,
-            'recordsFiltered' => count($filteredData),
-            'current_page' => $request->has('current_page') ? $request->input('current_page') : 0,
             'bbrl' => $bbrl->get()
         ];
 
@@ -106,17 +87,9 @@ class FinancialReportController extends Controller
         } else {
             $balance->addSelect(DB::RAW("'' AS valas"));
         }
-
-        $filteredData = $balance->get();
-        $totalRows = $balance->count();
         $balance->orderBy('urut', 'asc');
-
         $data = [
             'result' => true,
-            'total' => $totalRows,
-            'per_page' => $request->has('per_page') ? $request->input('current_page') : 0,
-            'recordsFiltered' => count($filteredData),
-            'current_page' => $request->has('current_page') ? $request->input('current_page') : 0,
             'balance' => $balance->get()
         ];
 
@@ -137,17 +110,42 @@ class FinancialReportController extends Controller
         DB::select("CALL TF_RL_SO('$so_id','$sdate','$edate', '$isOverhead', '$isAssumptionCost','$isShowRecord')");
         $model = new Tmp_PnlProject();
         $balance = Tmp_PnlProject::getPopulate();
-
-        $filteredData = $balance->get();
-        $totalRows = $balance->count();
         $balance->orderBy('urut', 'asc');
-
         $data = [
             'result' => true,
-            'total' => $totalRows,
-            'per_page' => $request->has('per_page') ? $request->input('current_page') : 0,
-            'recordsFiltered' => count($filteredData),
-            'current_page' => $request->has('current_page') ? $request->input('current_page') : 0,
+            'balance' => $balance->get()
+        ];
+
+        return response()->json($data);
+    }
+
+    public function getListPnlProjectList(request $request)
+    {
+        $model = new Tmp_PnlProject();
+        $fields = $model->getTableColumns();
+        $so_id = '';
+        $sdate = $request->input('sdate');
+        $edate = $request->input('edate');
+        $isAssumptionCost = ($request->input('isAssumptionCost') == "Y") ? "Y" : "";
+        $isOverhead = ($request->input('isOverhead') == "Y") ? "Y" : "";
+        $showProjectBy = $request->input('showProjectBy');
+        if ($showProjectBy == 'clear') {
+            $showProjectBy == 'C';
+        } else if ($showProjectBy == 'cr') {
+            $showProjectBy == 'R';
+        } else {
+            $showProjectBy = '';
+        }
+        $showProject = $request->input('showProject');
+        $isShowRecord = 'N';
+
+        DB::select("CALL TF_RL_SO_LIST('$so_id','$sdate','$edate', '$isOverhead', '$isAssumptionCost','$isShowRecord','$showProjectBy')");
+        $model = new Tmp_PnlProjectList();
+        $balance = Tmp_PnlProjectList::getPopulate();
+        $balance->orderBy('tgl_so', 'asc');
+        $balance->orderBy('no_so', 'asc');
+        $data = [
+            'result' => true,
             'balance' => $balance->get()
         ];
 
