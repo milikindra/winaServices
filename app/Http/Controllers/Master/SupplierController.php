@@ -8,53 +8,32 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
 use App\Tree\ModuleNode;
-use App\Models\Master\Customer;
+use App\Models\Master\Supplier;
 
-class CustomerController extends Controller
+class SupplierController extends Controller
 {
-    public function customerGetRawData(Request $request)
-    {
-        $model = Customer::getAll($request->field, $request->sort);
-        return response()->json($model);
-    }
-
-    public function customerGetById(Request $request)
-    {
-        $model = Customer::getPopulate();
-        $model->leftJoin(DB::RAW('(SELECT DISTINCT curr, rate
-		FROM masrate ORDER BY tanggal DESC) as rate_tmp'), 'mascustomer.curr', 'rate_tmp.curr');
-        $model->where('mascustomer.ID_CUST', $request->id_cust);
-        return $model->get();
-    }
-    public function customerGetForSi(Request $request)
-    {
-        $model = Customer::getPopulate();
-        $model->leftJoin('jual_head', 'jual_head.ID_CUST', 'mascustomer.ID_CUST');
-        $model->where('mascustomer.ID_CUST', $request->id_cust);
-        return $model->get();
-    }
-
     public function getList(Request $request)
     {
-        $model = new Customer();
+        $model = new Supplier();
         $fields = $model->getTableColumns();
         $void = $request->input('void');
 
-        $customer = Customer::getPopulate();
+        $sales = Supplier::getPopulate();
 
         if ($request->has('search')) {
             $keyword = $request->input('search');
             if (!empty($keyword)) {
-                $customer->where(function ($query) use ($keyword, $fields) {
-                    $query->orWhere('ID_CUST', 'LIKE', "%$keyword%")
-                        ->orWhere('NM_CUST', 'LIKE', "%$keyword%")
-                        ->orWhere('ALAMAT1', 'LIKE', "%$keyword%");
+                $sales->where(function ($query) use ($keyword, $fields) {
+                    $query->orWhere('id_supplier', 'LIKE', "%$keyword%")
+                        ->orWhere('nm_supplier', 'LIKE', "%$keyword%")
+                        ->orWhere('ALAMAT1', 'LIKE', "%$keyword%")
+                        ->orWhere('TELP', 'LIKE', "%$keyword%");
                 });
             }
         }
 
-        $filteredData = $customer->get();
-        $totalRows = $customer->count();
+        $filteredData = $sales->get();
+        $totalRows = $sales->count();
 
         if ($request->has('sort')) {
             if (!is_array($request->input('sort'))) {
@@ -70,21 +49,21 @@ class CustomerController extends Controller
             foreach ($request->input('sort') as $key => $sort) {
                 $column = $sort['column'];
                 $direction = $sort['dir'];
-                $customer->orderBy($column, $direction);
+                $sales->orderBy($column, $direction);
             }
         } else {
-            $customer->orderBy('NM_CUST', 'asc');
+            $sales->orderBy('id_supplier', 'asc');
         }
 
         if ($request->has('current_page')) {
             $page = $request->input('current_page');
-            $limit = $customer->count();
+            $limit = $sales->count();
             if ($request->has('per_page')) {
                 $limit = $request->input('per_page');
             }
             $offset = ($page - 1) * $limit;
             if ($limit > 0) {
-                $customer->skip($offset)->take($limit);
+                $sales->skip($offset)->take($limit);
             }
         }
 
@@ -94,7 +73,7 @@ class CustomerController extends Controller
             'per_page' => $request->has('per_page') ? $request->input('current_page') : 0,
             'recordsFiltered' => count($filteredData),
             'current_page' => $request->has('current_page') ? $request->input('current_page') : 0,
-            'customer' => $customer->get()
+            'supplier' => $sales->get()
         ];
 
         return response()->json($data);

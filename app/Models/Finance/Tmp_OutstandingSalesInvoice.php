@@ -1,20 +1,20 @@
 <?php
 
-namespace App\Models\Master;
+namespace App\Models\Finance;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
-class Customer extends Model
+class Tmp_OutstandingSalesInvoice extends Model
 {
 
-    protected $table = 'mascustomer';
-    protected $primaryKey = 'ID_CUST';
+    protected $table = '_reportOutstandingPiutang';
+    protected $primaryKey = null;
+    public $timestamps = false;
     public $incrementing = false;
-    const CREATED_AT = 'TGLCREATE';
-    const UPDATED_AT = 'TGLEDIT';
+
 
     public function getTableColumns()
     {
@@ -26,9 +26,9 @@ class Customer extends Model
         return $this->belongsTo('App\User', 'user_id', 'user_record');
     }
 
-    public static function getAll($field, $sort)
+    public static function getAll()
     {
-        $model = self::orderby($field, $sort)->get();
+        $model = self::get();
         return $model;
     }
 

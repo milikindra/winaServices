@@ -7,11 +7,11 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
-class Customer extends Model
+class Supplier extends Model
 {
 
-    protected $table = 'mascustomer';
-    protected $primaryKey = 'ID_CUST';
+    protected $table = 'massupplier';
+    protected $primaryKey = 'id_supplier';
     public $incrementing = false;
     const CREATED_AT = 'TGLCREATE';
     const UPDATED_AT = 'TGLEDIT';

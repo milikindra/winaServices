@@ -31,4 +31,10 @@ class Sales extends Model
         $model = self::orderby($field, $sort)->get();
         return $model;
     }
+
+    public static function getPopulate()
+    {
+        $model = self::select('*');
+        return $model;
+    }
 }

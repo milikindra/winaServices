@@ -55,11 +55,11 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
 
     // account
     $router->post('accountGetRawData', ['uses' => 'AccountController@accountGetRawData', 'as' => 'accountGetRawData']);
-    $router->post('accountGl/getListAccountHistory', ['uses' =>  'AccountController@getListAccountHistory', 'as' => 'AccountController/getListAccountHistory']);
-    $router->post('accountGl/getListAccount', ['uses' =>  'AccountController@getListAccount', 'as' => 'AccountController/getListAccount']);
-    $router->post('accountGl/getListCoaTransaction', ['uses' =>  'AccountController@getListCoaTransaction', 'as' => 'AccountController/getListCoaTransaction']);
-    $router->post('accountGl/getListGlGroupTransaction', ['uses' =>  'AccountController@getListGlGroupTransaction', 'as' => 'AccountController/getListGlGroupTransaction']);
-    $router->post('accountGl/getListCashBankDetail', ['uses' =>  'AccountController@getListCashBankDetail', 'as' => 'AccountController/getListCashBankDetail']);
+    $router->post('accountGl/getListAccountHistory', ['uses' =>  'AccountController@getListAccountHistory', 'as' => 'accountController/getListAccountHistory']);
+    $router->post('accountGl/getListAccount', ['uses' =>  'AccountController@getListAccount', 'as' => 'accountController/getListAccount']);
+    $router->post('accountGl/getListCoaTransaction', ['uses' =>  'AccountController@getListCoaTransaction', 'as' => 'accountController/getListCoaTransaction']);
+    $router->post('accountGl/getListGlGroupTransaction', ['uses' =>  'AccountController@getListGlGroupTransaction', 'as' => 'accountController/getListGlGroupTransaction']);
+    $router->post('accountGl/getListCashBankDetail', ['uses' =>  'AccountController@getListCashBankDetail', 'as' => 'accountController/getListCashBankDetail']);
     $router->post('trxTypeFromGlCard', ['uses' => 'AccountController@trxTypeFromGlCard', 'as' => 'trxTypeFromGlCard']);
 
 
@@ -67,9 +67,14 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
     $router->post('customerGetRawData', ['uses' => 'CustomerController@customerGetRawData', 'as' => 'customerGetRawData']);
     $router->post('customerGetById', ['uses' => 'CustomerController@customerGetById', 'as' => 'customerGetById']);
     $router->post('customerGetForSi', ['uses' => 'CustomerController@customerGetForSi', 'as' => 'customerGetForSi']);
+    $router->post('customer/getList', ['uses' => 'CustomerController@getList', 'as' => 'customer/getList']);
 
     // sales
     $router->post('salesGetRawData', ['uses' => 'SalesController@salesGetRawData', 'as' => 'salesGetRawData']);
+    $router->post('sales/getList', ['uses' => 'SalesController@getList', 'as' => 'sales/getList']);
+
+    // suuplier
+    $router->post('supplier/getList', ['uses' => 'SupplierController@getList', 'as' => 'supplier/getList']);
 
     // bussiness unit
     $router->post('bussinessUnitGetRawData', ['uses' => 'BussinessUnitController@bussinessUnitGetRawData', 'as' => 'bussinessUnitGetRawData']);
@@ -111,4 +116,8 @@ $router->group(['namespace' => 'Finance'], function () use ($router) {
     $router->post('financialReport/getListPnlProjectList', ['uses' =>  'FinancialReportController@getListPnlProjectList', 'as' => 'financialReport/getListPnlProjectList']);
     $router->post('getPnlProject', ['uses' =>  'FinancialReportController@getPnlProject', 'as' => 'getPnlProject']);
     $router->post('pnlProjectSave', ['uses' =>  'FinancialReportController@pnlProjectSave', 'as' => 'pnlProjectSave']);
+
+    // statementOfAccount
+    $router->post('statementOfAccount/getListCustomerSOA', ['uses' =>  'StatementOfAccountController@getListCustomerSOA', 'as' => 'statementOfAccount/getListCustomerSOA']);
+    $router->post('statementOfAccount/getListSupplierSOA', ['uses' =>  'StatementOfAccountController@getListSupplierSOA', 'as' => 'statementOfAccount/getListSupplierSOA']);
 });
