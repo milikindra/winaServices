@@ -73,4 +73,30 @@ class SalesOrderDetail extends Model
         $model->save();
         return $model;
     }
+
+    public static function updateData($request, $where)
+    {
+        $model = self->where('NO_BUKTI');
+        $model->NO_BUKTI = $request['NO_BUKTI'];
+        $model->NO_STOCK = $request['NO_STOCK'];
+        $model->NM_STOCK = $request['NM_STOCK'];
+        $model->QTY = $request['QTY'];
+        $model->SAT = $request['SAT'];
+        $model->HARGA = $request['HARGA'];
+        $model->DISC1 = $request['DISC1'];
+        $model->DISC2 = $request['DISC2'];
+        $model->DISC3 = $request['DISC3'];
+        $model->DISCRP = $request['DISCRP'];
+        $model->discrp2 = $request['discrp2'];
+        $model->state = $request['state'];
+        $model->alasan = $request['alasan'];
+        $model->nourut = $request['nourut'];
+        $model->tax = $request['tax'];
+        $model->kode_group = $request['kode_group'];
+        $model->qty_grup = $request['qty_grup'];
+        $model->VINTRASID = $request['VINTRASID'];
+        $model->tahun = $request['tahun'];
+        $model->save();
+        return $model;
+    }
 }

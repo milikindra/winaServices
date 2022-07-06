@@ -84,6 +84,9 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
 
     // vat
     $router->post('vatGetRawData', ['uses' => 'VatController@vatGetRawData', 'as' => 'vatGetRawData']);
+
+    // globalParam
+    $router->post('getGlobalParam', ['uses' => 'GlobalParamController@getGlobalParam', 'as' => 'getGlobalParam']);
 });
 
 $router->group(['namespace' => 'Transaction'], function () use ($router) {
@@ -94,6 +97,7 @@ $router->group(['namespace' => 'Transaction'], function () use ($router) {
     $router->post('salesOrderDetail', ['uses' => 'SalesOrderController@salesOrderDetail', 'as' => 'salesOrderDetail']);
     $router->post('soGetLastDetail', ['uses' => 'SalesOrderController@soGetLastDetail', 'as' => 'soGetLastDetail']);
     $router->post('soGetById', ['uses' => 'SalesOrderController@soGetById', 'as' => 'soGetById']);
+    $router->post('salesOrderUpdate', ['uses' => 'SalesOrderController@salesOrderUpdate', 'as' => 'salesOrderUpdate']);
 
 
     // SalesInvoice

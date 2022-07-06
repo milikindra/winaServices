@@ -136,8 +136,9 @@ class SalesOrderController extends Controller
 
     public function salesOrderDetail(Request $request)
     {
-        // $model = SalesOrderDetail::getSoDetail()->latest('nourut')->first();
-        $head = salesOrder::where('kontrak_head.NO_BUKTI', $request->NO_BUKTI)->select('*')->get();
+        $head = salesOrder::where('kontrak_head.NO_BUKTI', $request->NO_BUKTI)->select('kontrak_head.*', 'mascustomer.ALAMAT1')
+            ->leftJoin('mascustomer', 'kontrak_head.ID_CUST', 'mascustomer.ID_CUST')
+            ->get();
         $detail = salesOrderDetail::where('kontrak_det.NO_BUKTI', $request->NO_BUKTI)->select('*')->get();
         $um = SalesOrderDetailUm::where('kontrak_det_um.NO_BUKTI', $request->NO_BUKTI)->select('*')->get();
 
@@ -152,6 +153,43 @@ class SalesOrderController extends Controller
         ];
         return $data;
     }
+    public function SalesOrderUpdate(Request $request)
+    {
+        // LOG::DEBUG($request->where['id']);
+        DB::beginTransaction();
+        try {
+            $model = SalesOrder::updateData($request->head, $request->where);
+            SalesOrderDetail::where('NO_BUKTI', $request->where['id'])->delete();
+            SalesOrderDetailUm::where('NO_BUKTI', $request->where['id'])->delete();
+            for ($i = 0; $i < count($request->detail); $i++) {
+                $model = SalesOrderDetail::addData($request->detail[$i]);
+            }
+            for ($i = 0; $i < count($request->um); $i++) {
+                $model = SalesOrderDetailUm::addData($request->um[$i]);
+            }
+
+            DB::commit();
+            $message = 'Succesfully save data.';
+            $data = [
+                "result" => true,
+                'message' => $message,
+                "data" => $model
+            ];
+
+            // DB::rollback();
+            return $data;
+        } catch (\Exception $e) {
+            DB::rollback();
+            $message = 'Terjadi Error Server.';
+            $data = [
+                "result" => false,
+                'message' => $message
+            ];
+            Log::debug($request->path() . " | "  . $message .  " | " . print_r($request->input(), TRUE));
+            return $data;
+        }
+    }
+
 
     public function soGetLastDetail()
     {
