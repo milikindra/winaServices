@@ -25,9 +25,9 @@ class StatementOfAccountController extends Controller
         $sales = $request->input('sales');
         $overdue = $request->input('overdue');
         $isTotal = $request->input('isTotal');
-        DB::enableQueryLog();
+        // DB::enableQueryLog();
         DB::select("CALL TF_OutstandingPiutang('$edate', '$customer', '$so', '$sales', '$overdue', '$isTotal')");
-        Log::debug(DB::getQueryLog());
+        // Log::debug(DB::getQueryLog());
         $model = new Tmp_OutstandingSalesInvoice();
         $soa = Tmp_OutstandingSalesInvoice::getPopulate();
         $data = [
