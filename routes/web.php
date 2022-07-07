@@ -124,4 +124,5 @@ $router->group(['namespace' => 'Finance'], function () use ($router) {
     // statementOfAccount
     $router->post('statementOfAccount/getListCustomerSOA', ['uses' =>  'StatementOfAccountController@getListCustomerSOA', 'as' => 'statementOfAccount/getListCustomerSOA']);
     $router->post('statementOfAccount/getListSupplierSOA', ['uses' =>  'StatementOfAccountController@getListSupplierSOA', 'as' => 'statementOfAccount/getListSupplierSOA']);
+    $router->post('statementOfAccount/updateIn', ['uses' =>  'StatementOfAccountController@updateIn', 'as' => 'statementOfAccount/updateIn']);
 });
