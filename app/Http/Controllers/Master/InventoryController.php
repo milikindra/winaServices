@@ -143,6 +143,7 @@ class InventoryController extends Controller
 
     public function inventoryUpdate(Request $request)
     {
+        Log::debug($request);
         DB::beginTransaction();
         try {
             $model = Inventory::updateData($request);
@@ -170,7 +171,7 @@ class InventoryController extends Controller
     {
         DB::beginTransaction();
         try {
-            DB::enableQueryLog();
+            // DB::enableQueryLog();
             $model = Inventory::deleteData($request->no_stock);
             DB::commit();
             $message = 'Succesfully save data.';

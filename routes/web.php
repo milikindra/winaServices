@@ -87,6 +87,10 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
 
     // globalParam
     $router->post('getGlobalParam', ['uses' => 'GlobalParamController@getGlobalParam', 'as' => 'getGlobalParam']);
+
+    // vintras
+    $router->post('vintrasGetData', ['uses' => 'VintrasController@vintrasGetData', 'as' => 'vintrasGetData']);
+    $router->post('vintras/getList', ['uses' => 'VintrasController@getList', 'as' => 'vintras/getList']);
 });
 
 $router->group(['namespace' => 'Transaction'], function () use ($router) {

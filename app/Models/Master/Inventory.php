@@ -58,10 +58,11 @@ class Inventory extends Model
         $model->isMinus = $request->input('isMinus');
         $model->NO_REK1 = $request->input('NO_REK1');
         $model->NO_REK2 = $request->input('NO_REK2');
-        $model->PphPs23 = $request->input('PphPs23');
+        $model->PPhPs23 = $request->input('PPhPs23');
         $model->PPhPs21 = $request->input('PPhPs21');
         $model->PPhPs4Ayat2 = $request->input('PPhPs4Ayat2');
         $model->PPhPs21OP = $request->input('PPhPs21OP');
+        $model->VINTRASID = $request->input('VINTRASID');
         $model->save();
         return $model;
     }
@@ -83,17 +84,17 @@ class Inventory extends Model
         $model->isMinus = $request->input('isMinus');
         $model->NO_REK1 = $request->input('NO_REK1');
         $model->NO_REK2 = $request->input('NO_REK2');
-        $model->PphPs23 = $request->input('PphPs23');
+        $model->PPhPs23 = $request->input('PPhPs23');
         $model->PPhPs21 = $request->input('PPhPs21');
         $model->PPhPs4Ayat2 = $request->input('PPhPs4Ayat2');
         $model->PPhPs21OP = $request->input('PPhPs21OP');
+        $model->VINTRASID = $request->input('VINTRASID');
         $model->save();
         return $model;
     }
 
     public static function deleteData($request)
     {
-
         $model = self::where('no_stock', $request)->delete();
         return $model;
     }
