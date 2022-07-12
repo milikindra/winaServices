@@ -266,4 +266,71 @@ class SalesOrderController extends Controller
         ];
         return response()->json($data);
     }
+
+    public function salesOrderStatus(Request $request)
+    {
+
+        $status = SalesOrder::rightjoin('po_det', 'po_det.no_so', 'kontrak_head.NO_BUKTI')
+            ->where('kontrak_head.NO_BUKTI', $request->input('NO_BUKTI'))
+            ->count();
+        // $po = SalesOrder::rightjoin('po_det', 'po_det.no_so', 'kontrak_head.NO_BUKTI')
+        // ->where('kontrak_head.NO_BUKTI', $request->input('NO_BUKTI'))
+        // ->count();
+        // $pi = SalesOrder::rightjoin('beli_det', 'beli_det.NO_BUKTI', 'kontrak_head.NO_BUKTI')
+        //     ->where('kontrak_head.NO_BUKTI', $request->input('NO_BUKTI'))
+        //     ->count();
+        // $ri = SalesOrder::rightjoin('ri_det', 'ri_det.no_so', 'kontrak_head.NO_BUKTI')
+        //     ->where('kontrak_head.NO_BUKTI', $request->input('NO_BUKTI'))
+        //     ->count();
+        // $si = SalesOrder::rightjoin('jual_head', 'jual_head.no_so', 'kontrak_head.NO_BUKTI')
+        //     ->where('kontrak_head.NO_BUKTI', $request->input('NO_BUKTI'))
+        //     ->count();
+        if ($status == 0) {
+            $status = SalesOrder::rightjoin('sj_head', 'sj_head.no_So', 'kontrak_head.NO_BUKTI')
+                ->where('kontrak_head.NO_BUKTI', $request->input('NO_BUKTI'))
+                ->count();
+        }
+        // $do = SalesOrder::leftjoin('sj_head', 'sj_head.no_So', 'kontrak_head.NO_BUKTI')
+        //     ->where('kontrak_head.NO_BUKTI', $request->input('NO_BUKTI'))
+        // ->count();
+
+
+        // 1 = void
+        $data = [
+            'status' => $status,
+            // 'PO' => $po,  // po_det
+            // 'PI' => $pi,  // beli_det
+            // 'RI' => $ri, // ri_det
+            // 'SI' => $si, // jual_head
+            // 'DO' => $do, // sj_head
+        ];
+
+        // SO->PO->PI->RI->SI->DO
+        // Log::debug($do);
+        return response()->json($data);
+    }
+
+    public function salesOrderDelete(Request $request)
+    {
+        try {
+            // DB::enableQueryLog();
+            $model = SalesOrder::deleteData($request->NO_BUKTI);
+            DB::commit();
+            $message = 'Succesfully delete data.';
+            $data = [
+                "result" => true,
+                'message' => $message,
+            ];
+            return $data;
+        } catch (\Exception $e) {
+            DB::rollback();
+            $message = 'Something wrong! Cannot delete data.';
+            $data = [
+                "result" => false,
+                'message' => $message
+            ];
+            Log::debug($request->path() . " | "  . $message .  " | " . print_r($request->input(), TRUE));
+            return $data;
+        }
+    }
 }

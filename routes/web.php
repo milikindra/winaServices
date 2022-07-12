@@ -102,6 +102,8 @@ $router->group(['namespace' => 'Transaction'], function () use ($router) {
     $router->post('soGetLastDetail', ['uses' => 'SalesOrderController@soGetLastDetail', 'as' => 'soGetLastDetail']);
     $router->post('soGetById', ['uses' => 'SalesOrderController@soGetById', 'as' => 'soGetById']);
     $router->post('salesOrderUpdate', ['uses' => 'SalesOrderController@salesOrderUpdate', 'as' => 'salesOrderUpdate']);
+    $router->post('salesOrderStatus', ['uses' =>  'SalesOrderController@salesOrderStatus', 'as' => 'salesOrderStatus']);
+    $router->post('salesOrderDelete', ['uses' =>  'SalesOrderController@salesOrderDelete', 'as' => 'salesOrderDelete']);
 
 
     // SalesInvoice

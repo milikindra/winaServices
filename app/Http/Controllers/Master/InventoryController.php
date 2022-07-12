@@ -143,7 +143,6 @@ class InventoryController extends Controller
 
     public function inventoryUpdate(Request $request)
     {
-        Log::debug($request);
         DB::beginTransaction();
         try {
             $model = Inventory::updateData($request);
@@ -182,7 +181,7 @@ class InventoryController extends Controller
             return $data;
         } catch (\Exception $e) {
             DB::rollback();
-            $message = 'Terjadi Error Server.';
+            $message = 'Something wrong.';
             $data = [
                 "result" => false,
                 'message' => $message
