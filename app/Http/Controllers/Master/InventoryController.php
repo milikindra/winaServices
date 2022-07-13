@@ -141,9 +141,11 @@ class InventoryController extends Controller
         try {
             $model = Inventory::find($request->no_stock);
             $model->get();
+            $child = InventoryGroupDetail::where('NO_BUKTI', $request->no_stock)->get();
             $data = [
                 "result" => true,
                 'inv' => $model,
+                'child' => $child
             ];
             return $data;
         } catch (\Exception $e) {
@@ -161,6 +163,20 @@ class InventoryController extends Controller
         DB::beginTransaction();
         try {
             $model = Inventory::updateData($request);
+            if ($request->input('kodeBJ') == 'G') {
+                $model = InventoryGroup::updateData($request);
+                $model = InventoryGroupDetail::deleteData($request->input('no_stock_old'));
+                for ($i = 0; $i < count($request->input('no_stockGroup')); $i++) {
+                    $send = [
+                        'no_stock' => $request->input('no_stock'),
+                        'no_stockGroup' => $request->input('no_stockGroup')[$i],
+                        'nm_stockGroup' => $request->input('nm_stockGroup')[$i],
+                        'qtyGroup' => $request->input('qtyGroup')[$i],
+                        'satGroup' => $request->input('satGroup')[$i]
+                    ];
+                    $model = InventoryGroupDetail::addData($send);
+                }
+            }
             DB::commit();
             $message = 'Succesfully save data.';
             $data = [

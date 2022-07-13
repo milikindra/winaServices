@@ -36,4 +36,10 @@ class InventoryGroupDetail extends Model
         $model = DB::insert('insert into grouping_det (NO_BUKTI, NO_STOCK,NM_STOCK,QTY,SAT  ) values (?, ?,?,?,?)', [$request['no_stock'], $request['no_stockGroup'], $request['nm_stockGroup'], $request['qtyGroup'], $request['satGroup']]);
         return $model;
     }
+
+    public static function deleteData($request)
+    {
+        $model = self::where('NO_BUKTI', $request)->delete();
+        return $model;
+    }
 }

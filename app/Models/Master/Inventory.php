@@ -69,7 +69,7 @@ class Inventory extends Model
     }
     public static function updateData($request)
     {
-        $model = self::find($request->input('no_stock'));
+        $model = self::find($request->input('no_stock_old'));
         $model->editor = $request->input('creator');
         $model->no_stock = $request->input('no_stock');
         $model->nm_stock = $request->input('nm_stock');
