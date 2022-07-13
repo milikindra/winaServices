@@ -62,6 +62,7 @@ class Inventory extends Model
         $model->PPhPs21 = $request->input('PPhPs21');
         $model->PPhPs4Ayat2 = $request->input('PPhPs4Ayat2');
         $model->PPhPs21OP = $request->input('PPhPs21OP');
+        $model->kodeBJ = $request->input('kodeBJ');
         $model->VINTRASID = $request->input('VINTRASID');
         $model->save();
         return $model;
@@ -88,6 +89,7 @@ class Inventory extends Model
         $model->PPhPs21 = $request->input('PPhPs21');
         $model->PPhPs4Ayat2 = $request->input('PPhPs4Ayat2');
         $model->PPhPs21OP = $request->input('PPhPs21OP');
+        $model->kodeBJ = $request->input('kodeBJ');
         $model->VINTRASID = $request->input('VINTRASID');
         $model->save();
         return $model;

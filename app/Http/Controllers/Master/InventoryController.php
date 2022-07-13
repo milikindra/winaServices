@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\DB;
 
 use App\Tree\ModuleNode;
 use App\Models\Master\Inventory;
+use App\Models\Master\InventoryGroup;
+use App\Models\Master\InventoryGroupDetail;
 use App\Models\Master\Tmp_Postok;
 
 class InventoryController extends Controller
@@ -101,6 +103,19 @@ class InventoryController extends Controller
         DB::beginTransaction();
         try {
             $model = Inventory::addData($request);
+            if ($request->input('kodeBJ') == 'G') {
+                $model = InventoryGroup::addData($request);
+                for ($i = 0; $i < count($request->input('no_stockGroup')); $i++) {
+                    $send = [
+                        'no_stock' => $request->input('no_stock'),
+                        'no_stockGroup' => $request->input('no_stockGroup')[$i],
+                        'nm_stockGroup' => $request->input('nm_stockGroup')[$i],
+                        'qtyGroup' => $request->input('qtyGroup')[$i],
+                        'satGroup' => $request->input('satGroup')[$i]
+                    ];
+                    $model = InventoryGroupDetail::addData($send);
+                }
+            }
             DB::commit();
             $message = 'Succesfully save data.';
             $data = [
