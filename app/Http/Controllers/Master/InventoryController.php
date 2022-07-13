@@ -203,6 +203,8 @@ class InventoryController extends Controller
         try {
             // DB::enableQueryLog();
             $model = Inventory::deleteData($request->no_stock);
+            $model = InventoryGroup::deleteData($request->no_stock);
+            $model = InventoryGroupDetail::deleteData($request->no_stock);
             DB::commit();
             $message = 'Succesfully save data.';
             $data = [
