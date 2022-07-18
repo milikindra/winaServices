@@ -314,4 +314,26 @@ class InventoryController extends Controller
         $model = Inventory::getAll();
         return response()->json($model);
     }
+
+    public function inventoryChildGetByHead(Request $request)
+    {
+        try {
+            $child = Inventory::select('stock.no_stock', 'stock.nm_Stock as nama_barang', 'grouping_det.sat', 'grouping_det.qty as saldo')
+                ->leftJoin('grouping_det', 'grouping_det.NO_STOCK', 'stock.no_stock')
+                ->where('grouping_det.NO_BUKTI', $request->NO_BUKTI)
+                ->get();
+            $data = [
+                "result" => true,
+                'child' => $child
+            ];
+            return $data;
+        } catch (\Exception $e) {
+            $message = 'Terjadi Error Server.';
+            $data = [
+                "result" => false,
+            ];
+            Log::debug($request->path() . " | "  . $message .  " | " . print_r($request->input(), TRUE));
+            return $data;
+        }
+    }
 }

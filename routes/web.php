@@ -37,6 +37,7 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
     $router->post('inventoryUpdate', ['uses' => 'InventoryController@inventoryUpdate', 'as' => 'inventoryUpdate']);
     $router->post('kartuStok/getList', ['uses' => 'InventoryController@kartuStokGetList', 'as' => 'kartuStok/getList']);
     $router->post('inventoryGetRawData', ['uses' => 'InventoryController@inventoryGetRawData', 'as' => 'inventoryGetRawData']);
+    $router->post('inventoryChildGetByHead', ['uses' => 'InventoryController@inventoryChildGetByHead', 'as' => 'inventoryChildGetByHead']);
 
     // province
     $router->post('getProvinceById', ['uses' => 'ProvinceController@getProvinceById', 'as' => 'getProvinceById']);

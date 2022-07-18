@@ -70,6 +70,7 @@ class SalesOrderDetail extends Model
         $model->qty_grup = $request['qty_grup'];
         $model->VINTRASID = $request['VINTRASID'];
         $model->tahun = $request['tahun'];
+        $model->kode_group = $request['kode_group'];
         $model->save();
         return $model;
     }
