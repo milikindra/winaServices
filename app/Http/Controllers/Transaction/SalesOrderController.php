@@ -339,7 +339,7 @@ class SalesOrderController extends Controller
             $data = [
                 "result" => true,
                 'message' => $message,
-                // "data" => $model
+                "data" => $model
             ];
 
             return $data;
