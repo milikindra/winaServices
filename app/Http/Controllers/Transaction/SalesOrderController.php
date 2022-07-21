@@ -104,10 +104,23 @@ class SalesOrderController extends Controller
     {
         DB::beginTransaction();
         try {
+            // insert head update
             $model = SalesOrder::addData($request->head);
+            //insert child order
             for ($i = 0; $i < count($request->detail); $i++) {
+                $vintrasId = $request->detail[$i]['VINTRASID']; //no_nota vintras
+                $tahunVintras = $request->detail[$i]['tahun']; //year of inquiry
+                $tipeInquiry = 'Tipe_Inquiry'; //field name on vintras
+                $paramVintras = '2'; //for first update on vintras
+                $userVintras = $request->head['CREATOR'];
+                $itemPath = ""; //path file reference
+                $uniParam = "SO||" . $request->head['jenis'] . "||" . $request->head['TGL_BUKTI'] . "||" . $request->head['tgl_due'] . "||" . $request->head['PO_CUST'] . "||" . $request->detail[$i]['QTY'] . " " . $request->detail[$i]['SAT'] . "||" . $request->detail[$i]['KET'] . "||" . $request->detail[$i]['merk'] . "||" . $request->head['no_ref'] . "||" . $request->head['NO_BUKTI'] . "||" . $request->head['NM_SALES'] . "||" . $itemPath . "||" . $request->head['TEMPO'] . " days " . $request->head['pay_term']; //value update vintras
+                if ($vintrasId != '') {
+                    DB::select("CALL SP_UPDATE_VINTRAS('$vintrasId','$tahunVintras','$tipeInquiry','$paramVintras','$userVintras','$uniParam')");
+                }
                 $model = SalesOrderDetail::addData($request->detail[$i]);
             }
+            // insert down payment
             for ($i = 0; $i < count($request->um); $i++) {
                 $model = SalesOrderDetailUm::addData($request->um[$i]);
             }
@@ -120,7 +133,6 @@ class SalesOrderController extends Controller
                 "data" => $model
             ];
 
-            // DB::rollback();
             return $data;
         } catch (\Exception $e) {
             DB::rollback();
@@ -136,10 +148,14 @@ class SalesOrderController extends Controller
 
     public function salesOrderDetail(Request $request)
     {
-        $head = salesOrder::where('kontrak_head.NO_BUKTI', $request->NO_BUKTI)->select('kontrak_head.*', 'mascustomer.ALAMAT1')
-            ->leftJoin('mascustomer', 'kontrak_head.ID_CUST', 'mascustomer.ID_CUST')
+        $head = salesOrder::leftJoin('mascustomer', 'kontrak_head.ID_CUST', 'mascustomer.ID_CUST')
+            ->where('kontrak_head.NO_BUKTI', $request->NO_BUKTI)
+            ->select('kontrak_head.*', 'mascustomer.ALAMAT1')
             ->get();
-        $detail = salesOrderDetail::where('kontrak_det.NO_BUKTI', $request->NO_BUKTI)->select('*')->get();
+        $detail = salesOrderDetail::leftJoin('stock', 'stock.no_stock', 'kontrak_det.NO_STOCK')
+            ->where('kontrak_det.NO_BUKTI', $request->NO_BUKTI)
+            ->select('kontrak_det.*', 'stock.merk')
+            ->get();
         $um = SalesOrderDetailUm::where('kontrak_det_um.NO_BUKTI', $request->NO_BUKTI)->select('*')->get();
 
         $mergeData = [
@@ -147,6 +163,7 @@ class SalesOrderController extends Controller
             "detail" => $detail,
             "um" => $um
         ];
+        // log::debug($mergeData);
         $data = [
             "result" => true,
             'so' => $mergeData,
@@ -155,12 +172,161 @@ class SalesOrderController extends Controller
     }
     public function SalesOrderUpdate(Request $request)
     {
-        // LOG::DEBUG($request->where['id']);
         DB::beginTransaction();
         try {
-            $model = SalesOrder::updateData($request->head, $request->where);
+            $old = salesOrderDetail::leftJoin('stock', 'stock.no_stock', 'kontrak_det.NO_STOCK')
+                ->where('kontrak_det.NO_BUKTI', $request->where['id'])
+                ->select('kontrak_det.*', 'stock.merk')
+                ->get();
+            $new = [];
+            for ($i = 0; $i < count($request->detail); $i++) {
+                // input
+                $arrNew = [];
+                $arrNew['NO_BUKTI'] = $request->detail[$i]['NO_BUKTI'];
+                $arrNew['NO_STOCK'] = $request->detail[$i]['NO_STOCK'];
+                $arrNew['NM_STOCK'] = $request->detail[$i]['NM_STOCK'];
+                $arrNew['QTY'] = $request->detail[$i]['QTY'];
+                $arrNew['SAT'] = $request->detail[$i]['SAT'];
+                $arrNew['HARGA'] = $request->detail[$i]['HARGA'];
+                $arrNew['DISC1'] = $request->detail[$i]['DISC1'];
+                $arrNew['DISC2'] = $request->detail[$i]['DISC2'];
+                $arrNew['DISC3'] = $request->detail[$i]['DISC3'];
+                $arrNew['DISCRP'] = $request->detail[$i]['DISCRP'];
+                $arrNew['discrp2'] = $request->detail[$i]['discrp2'];
+                $arrNew['KET'] = $request->detail[$i]['KET'];
+                $arrNew['state'] = $request->detail[$i]['state'];
+                $arrNew['alasan'] = $request->detail[$i]['alasan'];
+                $arrNew['tax'] = $request->detail[$i]['tax'];
+                $arrNew['kode_group'] = $request->detail[$i]['kode_group'];
+                $arrNew['qty_grup'] = $request->detail[$i]['qty_grup'];
+                $arrNew['VINTRASID'] = $request->detail[$i]['VINTRASID'];
+                $arrNew['tahun'] = $request->detail[$i]['tahun'];
+                $arrNew['merk'] = $request->detail[$i]['merk'];
+
+                // $update = [];
+                // $update1 = [];
+                // $j = 0;
+                // foreach ($old as $val) {
+                //     // lama
+                //     $cek = '';
+                //     if ($val->NO_STOCK == $request->detail[$i]['NO_STOCK']) {
+                //         // make array for check diff
+                //         $arrOld['NO_BUKTI'] = $val->NO_BUKTI;
+                //         $arrOld['NO_STOCK'] = $val->NO_STOCK;
+                //         $arrOld['NM_STOCK'] = $val->NM_STOCK;
+                //         $arrOld['QTY'] = $val->QTY;
+                //         $arrOld['SAT'] = $val->SAT;
+                //         $arrOld['HARGA'] = $val->HARGA;
+                //         $arrOld['DISC1'] = $val->DISC1;
+                //         $arrOld['DISC2'] = $val->DISC2;
+                //         $arrOld['DISC3'] = $val->DISC3;
+                //         $arrOld['DISCRP'] = $val->DISCRP;
+                //         $arrOld['discrp2'] = $val->discrp2;
+                //         $arrOld['KET'] = $val->KET;
+                //         $arrOld['state'] = $val->state;
+                //         $arrOld['alasan'] = $val->alasan;
+                //         $arrOld['tax'] = $val->tax;
+                //         $arrOld['kode_group'] = $val->kode_group;
+                //         $arrOld['qty_grup'] = $val->qty_grup;
+                //         $arrOld['VINTRASID'] = $val->VINTRASID;
+                //         $arrOld['tahun'] = $val->tahun;
+                //         $arrOld['merk'] = $val->merk;
+                //         // found change field on array diff
+                //         $cek = array_diff_assoc($arrNew, $arrOld);
+                //         //Update vintras by vintras id | ps : inquiry '2'
+                //         if (!empty($cek)) {
+                //             if ($request->detail[$i]['VINTRASID'] != '') {
+                //                 $vintrasId = $request->detail[$i]['VINTRASID']; //no_nota vintras
+                //                 $tahunVintras = $request->detail[$i]['tahun']; //year of inquiry
+                //                 $tipeInquiry = 'Tipe_Inquiry'; //field name on vintras
+                //                 $paramVintras = '2'; //for first update on vintras
+                //                 $userVintras = $request->head['CREATOR'];
+                //                 $itemPath = ""; //path file reference
+                //                 $uniParam = "SO||" . $request->head['jenis'] . "||" . $request->head['TGL_BUKTI'] . "||" . $request->head['tgl_due'] . "||" . $request->head['PO_CUST'] . "||" . $request->detail[$i]['QTY'] . " " . $request->detail[$i]['SAT'] . "||" . $request->detail[$i]['KET'] . "||" . $request->detail[$i]['merk'] . "||" . $request->head['no_ref'] . "||" . $request->head['NO_BUKTI'] . "||" . $request->head['NM_SALES'] . "||" . $itemPath . "||" . $request->head['TEMPO'] . " days " . $request->head['pay_term']; //value update vintras
+                //                 DB::select("CALL SP_UPDATE_VINTRAS('$vintrasId','$tahunVintras','$tipeInquiry','$paramVintras','$userVintras','$uniParam')");
+                //             }
+                //         }
+                //     }
+                // }
+                $new[] = $arrNew;
+            }
+
+            $oldSort = [];
+            foreach ($old as $val) {
+                // old array
+                $arrOld = [];
+                $arrOld['NO_BUKTI'] = $val->NO_BUKTI;
+                $arrOld['NO_STOCK'] = $val->NO_STOCK;
+                $arrOld['NM_STOCK'] = $val->NM_STOCK;
+                $arrOld['QTY'] = $val->QTY;
+                $arrOld['SAT'] = $val->SAT;
+                $arrOld['HARGA'] = $val->HARGA;
+                $arrOld['DISC1'] = $val->DISC1;
+                $arrOld['DISC2'] = $val->DISC2;
+                $arrOld['DISC3'] = $val->DISC3;
+                $arrOld['DISCRP'] = $val->DISCRP;
+                $arrOld['discrp2'] = $val->discrp2;
+                $arrOld['KET'] = $val->KET;
+                $arrOld['state'] = $val->state;
+                $arrOld['alasan'] = $val->alasan;
+                $arrOld['tax'] = $val->tax;
+                $arrOld['kode_group'] = $val->kode_group;
+                $arrOld['qty_grup'] = $val->qty_grup;
+                $arrOld['VINTRASID'] = $val->VINTRASID;
+                $arrOld['tahun'] = $val->tahun;
+                $arrOld['merk'] = $val->merk;
+                $oldSort[] = $arrOld;
+            }
+
+            $vintransDelete = array_udiff($oldSort, $new, fn ($a, $b) => $a <=> $b); // return old value and change to '0' 
+            if (!empty($vintransDelete)) {
+                foreach ($vintransDelete as $del) {
+                    // Log::debug($new);
+                    $cOldData = 0;
+                    if ($del['VINTRASID'] != '') {
+                        foreach ($new as $valNew) {
+                            if ($del['VINTRASID'] == $valNew['VINTRASID']) {
+                                $vintrasId = $valNew['VINTRASID']; //no_nota vintras
+                                $tahunVintras = $valNew['tahun']; //year of inquiry
+                                $tipeInquiry = 'Tipe_Inquiry'; //field name on vintras
+                                $paramVintras = '2'; //for delete on vintras
+                                $userVintras = $request->head['CREATOR'];
+                                $itemPath = ""; //path file reference
+                                $uniParam = "SO||" . $request->head['jenis'] . "||" . $request->head['TGL_BUKTI'] . "||" . $request->head['tgl_due'] . "||" . $request->head['PO_CUST'] . "||" . $valNew['QTY'] . " " . $valNew['SAT'] . "||" . $valNew['KET'] . "||" . $valNew['merk'] . "||" . $request->head['no_ref'] . "||" . $request->head['NO_BUKTI'] . "||" . $request->head['NM_SALES'] . "||" . $itemPath . "||" . $request->head['TEMPO'] . " days " . $request->head['pay_term']; //value update vintras
+                                $cOldData++;
+                            }
+                        }
+                        if ($cOldData == 0) {
+                            $vintrasId = $del['VINTRASID']; //no_nota vintras
+                            $tahunVintras = $del['tahun']; //year of inquiry
+                            $tipeInquiry = 'Tipe_Inquiry'; //field name on vintras
+                            $paramVintras = '0'; //for delete on vintras
+                            $userVintras = $request->head['CREATOR'];
+                            $itemPath = ""; //path file reference
+                            $uniParam = "SO||" . $request->head['jenis'] . "||" . $request->head['TGL_BUKTI'] . "||" . $request->head['tgl_due'] . "||" . $request->head['PO_CUST'] . "||" . $del['QTY'] . " " . $del['SAT'] . "||" . $del['KET'] . "||" . $del['merk'] . "||" . $request->head['no_ref'] . "||" . $request->head['NO_BUKTI'] . "||" . $request->head['NM_SALES'] . "||" . $itemPath . "||" . $request->head['TEMPO'] . " days " . $request->head['pay_term']; //value update vintras
+                        }
+                        DB::select("CALL SP_UPDATE_VINTRAS('$vintrasId','$tahunVintras','$tipeInquiry','$paramVintras','$userVintras','$uniParam')");
+                    }
+                }
+            }
+            $vintransInsert = array_udiff($new, $oldSort, fn ($a, $b) => $a <=> $b); // return new value and change to '2'
+            if (!empty($vintransInsert)) {
+                foreach ($vintransInsert as $ins) {
+                    if ($ins['VINTRASID'] != '') {
+                        $vintrasId = $ins['VINTRASID']; //no_nota vintras
+                        $tahunVintras = $ins['tahun']; //year of inquiry
+                        $tipeInquiry = 'Tipe_Inquiry'; //field name on vintras
+                        $paramVintras = '0'; //for insert on vintras
+                        $userVintras = $request->head['CREATOR'];
+                        $itemPath = ""; //path file reference
+                        $uniParam = "SO||" . $request->head['jenis'] . "||" . $request->head['TGL_BUKTI'] . "||" . $request->head['tgl_due'] . "||" . $request->head['PO_CUST'] . "||" . $ins['QTY'] . " " . $ins['SAT'] . "||" . $ins['KET'] . "||" . $ins['merk'] . "||" . $request->head['no_ref'] . "||" . $request->head['NO_BUKTI'] . "||" . $request->head['NM_SALES'] . "||" . $itemPath . "||" . $request->head['TEMPO'] . " days " . $request->head['pay_term']; //value update vintras
+                        DB::select("CALL SP_UPDATE_VINTRAS('$vintrasId','$tahunVintras','$tipeInquiry','$paramVintras','$userVintras','$uniParam')");
+                    }
+                }
+            }
             SalesOrderDetail::where('NO_BUKTI', $request->where['id'])->delete();
             SalesOrderDetailUm::where('NO_BUKTI', $request->where['id'])->delete();
+            $model = SalesOrder::updateData($request->head, $request->where);
             for ($i = 0; $i < count($request->detail); $i++) {
                 $model = SalesOrderDetail::addData($request->detail[$i]);
             }
@@ -173,10 +339,9 @@ class SalesOrderController extends Controller
             $data = [
                 "result" => true,
                 'message' => $message,
-                "data" => $model
+                // "data" => $model
             ];
 
-            // DB::rollback();
             return $data;
         } catch (\Exception $e) {
             DB::rollback();
@@ -189,7 +354,6 @@ class SalesOrderController extends Controller
             return $data;
         }
     }
-
 
     public function soGetLastDetail()
     {

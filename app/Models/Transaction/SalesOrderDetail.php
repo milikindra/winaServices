@@ -56,6 +56,7 @@ class SalesOrderDetail extends Model
         $model->NM_STOCK = $request['NM_STOCK'];
         $model->QTY = $request['QTY'];
         $model->SAT = $request['SAT'];
+        $model->KET = $request['KET'];
         $model->HARGA = $request['HARGA'];
         $model->DISC1 = $request['DISC1'];
         $model->DISC2 = $request['DISC2'];
@@ -70,7 +71,6 @@ class SalesOrderDetail extends Model
         $model->qty_grup = $request['qty_grup'];
         $model->VINTRASID = $request['VINTRASID'];
         $model->tahun = $request['tahun'];
-        $model->kode_group = $request['kode_group'];
         $model->save();
         return $model;
     }

@@ -54,6 +54,7 @@ class SalesOrder extends Model
         $model = new self();
         $model->NO_BUKTI = $request['NO_BUKTI'];
         $model->TGL_BUKTI = $request['TGL_BUKTI'];
+        $model->tgl_due = $request['tgl_due'];
         $model->DIVISI = $request['DIVISI'];
         $model->ID_CUST = $request['ID_CUST'];
         $model->NM_CUST = $request['NM_CUST'];
