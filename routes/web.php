@@ -63,12 +63,15 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
     $router->post('accountGl/getListCashBankDetail', ['uses' =>  'AccountController@getListCashBankDetail', 'as' => 'accountController/getListCashBankDetail']);
     $router->post('trxTypeFromGlCard', ['uses' => 'AccountController@trxTypeFromGlCard', 'as' => 'trxTypeFromGlCard']);
 
-
     // customer
     $router->post('customerGetRawData', ['uses' => 'CustomerController@customerGetRawData', 'as' => 'customerGetRawData']);
     $router->post('customerGetById', ['uses' => 'CustomerController@customerGetById', 'as' => 'customerGetById']);
     $router->post('customerGetForSi', ['uses' => 'CustomerController@customerGetForSi', 'as' => 'customerGetForSi']);
     $router->post('customer/getList', ['uses' => 'CustomerController@getList', 'as' => 'customer/getList']);
+    $router->post('customerAddSave', ['uses' => 'CustomerController@customerAddSave', 'as' => 'customerAddSave']);
+    $router->post('customerEdit', ['uses' => 'CustomerController@customerEdit', 'as' => 'customerEdit']);
+    $router->post('customerUpdate', ['uses' => 'CustomerController@customerUpdate', 'as' => 'customerUpdate']);
+
 
     // sales
     $router->post('salesGetRawData', ['uses' => 'SalesController@salesGetRawData', 'as' => 'salesGetRawData']);
@@ -92,6 +95,9 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
     // vintras
     $router->post('vintrasGetData', ['uses' => 'VintrasController@vintrasGetData', 'as' => 'vintrasGetData']);
     $router->post('vintras/getList', ['uses' => 'VintrasController@getList', 'as' => 'vintras/getList']);
+
+    // area
+    $router->post('areaGetRawData', ['uses' => 'AreaController@areaGetRawData', 'as' => 'areaGetRawData']);
 });
 
 $router->group(['namespace' => 'Transaction'], function () use ($router) {
@@ -105,6 +111,7 @@ $router->group(['namespace' => 'Transaction'], function () use ($router) {
     $router->post('salesOrderUpdate', ['uses' => 'SalesOrderController@salesOrderUpdate', 'as' => 'salesOrderUpdate']);
     $router->post('salesOrderStatus', ['uses' =>  'SalesOrderController@salesOrderStatus', 'as' => 'salesOrderStatus']);
     $router->post('salesOrderDelete', ['uses' =>  'SalesOrderController@salesOrderDelete', 'as' => 'salesOrderDelete']);
+    $router->post('salesOrderUpdateState', ['uses' => 'SalesOrderController@salesOrderUpdateState', 'as' => 'salesOrderUpdateState']);
 
 
     // SalesInvoice

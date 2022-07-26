@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 use App\Tree\ModuleNode;
 use App\Models\Master\Customer;
+use App\Models\Master\CustomerShippingAddress;
 
 class CustomerController extends Controller
 {
@@ -20,9 +21,10 @@ class CustomerController extends Controller
 
     public function customerGetById(Request $request)
     {
-        $model = Customer::getPopulate();
+        $model = Customer::select('mascustomer.*', 'wina_m_other_address.address_alias', 'wina_m_other_address.tax_id', 'wina_m_other_address.other_address');
         $model->leftJoin(DB::RAW('(SELECT DISTINCT curr, rate
 		FROM masrate ORDER BY tanggal DESC) as rate_tmp'), 'mascustomer.curr', 'rate_tmp.curr');
+        $model->leftJoin('wina_m_other_address', 'mascustomer.ID_CUST', 'wina_m_other_address.customer_id');
         $model->where('mascustomer.ID_CUST', $request->id_cust);
         return $model->get();
     }
@@ -98,5 +100,88 @@ class CustomerController extends Controller
         ];
 
         return response()->json($data);
+    }
+
+    public function customerAddSave(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            // insert customer
+            $model = Customer::addData($request->customer);
+            // insert branch
+            for ($i = 0; $i < count($request->branch); $i++) {
+                $model = CustomerShippingAddress::addData($request->branch[$i]);
+            }
+            DB::commit();
+            $message = 'Succesfully save data.';
+            $data = [
+                "result" => true,
+                'message' => $message,
+                "data" => $model
+            ];
+            return $data;
+        } catch (\Exception $e) {
+            DB::rollback();
+            $message = 'Terjadi Error Server.';
+            $data = [
+                "result" => false,
+                'message' => $message
+            ];
+            Log::debug($request->path() . " | "  . $message .  " | " . print_r($request->input(), TRUE));
+            return $data;
+        }
+    }
+
+    public function customerEdit(request $request)
+    {
+        try {
+            $model = Customer::find($request->ID_CUST);
+            $model->get();
+            $child = CustomerShippingAddress::where('customer_id', $request->ID_CUST)->get();
+            $data = [
+                "result" => true,
+                'customer' => $model,
+                'branch' => $child
+            ];
+            return $data;
+        } catch (\Exception $e) {
+            $message = 'Terjadi Error Server.';
+            $data = [
+                "result" => false,
+            ];
+            Log::debug($request->path() . " | "  . $message .  " | " . print_r($request->input(), TRUE));
+            return $data;
+        }
+    }
+
+    public function customerUpdate(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $model = Customer::updateData($request->customer);
+            $model = CustomerShippingAddress::deleteData($request->input('customer')['ID_CUST_OLD']);
+            // insert branch
+            for ($i = 0; $i < count($request->branch); $i++) {
+                $model = CustomerShippingAddress::addData($request->branch[$i]);
+            }
+
+            DB::commit();
+            $message = 'Succesfully save data.';
+            $data = [
+                "result" => true,
+                'message' => $message,
+                "data" => $model
+            ];
+            return $data;
+        } catch (\Exception $e) {
+            DB::rollback();
+            $message = 'Terjadi Error Server.';
+            $data = [
+                "result" => false,
+                'message' => $message
+            ];
+            Log::debug($request->path() . " | "  . $message .  " | " . print_r($request->input(), TRUE));
+            return $data;
+        }
     }
 }

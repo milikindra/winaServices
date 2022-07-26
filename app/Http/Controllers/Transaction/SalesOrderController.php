@@ -12,6 +12,10 @@ use App\Tree\ModuleNode;
 use App\Models\Transaction\SalesOrder;
 use App\Models\Transaction\SalesOrderDetail;
 use App\Models\Transaction\SalesOrderDetailUm;
+use App\Models\Transaction\SalesDeliveryDetail;
+use App\Models\Transaction\SalesReturnDetail;
+use App\Models\Master\Customer;
+use App\Models\Master\CustomerShippingAddress;
 
 class SalesOrderController extends Controller
 {
@@ -104,36 +108,53 @@ class SalesOrderController extends Controller
     {
         DB::beginTransaction();
         try {
-            // insert head update
-            $model = SalesOrder::addData($request->head);
-            //insert child order
-            for ($i = 0; $i < count($request->detail); $i++) {
-                $vintrasId = $request->detail[$i]['VINTRASID']; //no_nota vintras
-                $tahunVintras = $request->detail[$i]['tahun']; //year of inquiry
-                $tipeInquiry = 'Tipe_Inquiry'; //field name on vintras
-                $paramVintras = '2'; //for first update on vintras
-                $userVintras = $request->head['CREATOR'];
-                $itemPath = ""; //path file reference
-                $uniParam = "SO||" . $request->head['jenis'] . "||" . $request->head['TGL_BUKTI'] . "||" . $request->head['tgl_due'] . "||" . $request->head['PO_CUST'] . "||" . $request->detail[$i]['QTY'] . " " . $request->detail[$i]['SAT'] . "||" . $request->detail[$i]['KET'] . "||" . $request->detail[$i]['merk'] . "||" . $request->head['no_ref'] . "||" . $request->head['NO_BUKTI'] . "||" . $request->head['NM_SALES'] . "||" . $itemPath . "||" . $request->head['TEMPO'] . " days " . $request->head['pay_term']; //value update vintras
-                if ($vintrasId != '') {
-                    DB::select("CALL SP_UPDATE_VINTRAS('$vintrasId','$tahunVintras','$tipeInquiry','$paramVintras','$userVintras','$uniParam')");
-                }
-                $model = SalesOrderDetail::addData($request->detail[$i]);
-            }
-            // insert down payment
-            for ($i = 0; $i < count($request->um); $i++) {
-                $model = SalesOrderDetailUm::addData($request->um[$i]);
-            }
+        // update address customer
+        if ($request->customer['address_alias'] == 'Main Address') {
+            $model = Customer::where('ID_CUST', $request->head['ID_CUST'])
+                ->update([
+                    'ALAMAT1' => $request->customer['other_address'],
+                    'ALAMAT2' => '',
+                    'EDITOR' => $request->head['EDITOR']
+                ]);
+        } else {
+            $model = CustomerShippingAddress::where('customer_id', $request->head['ID_CUST'])
+                ->where('address_alias', $request->customer['address_alias'])
+                ->update([
+                    'other_address' => $request->customer['other_address'],
+                    'user_modified' => $request->head['EDITOR']
+                ]);
+        }
 
-            DB::commit();
-            $message = 'Succesfully save data.';
-            $data = [
-                "result" => true,
-                'message' => $message,
-                "data" => $model
-            ];
+        // insert head update
+        $model = SalesOrder::addData($request->head);
+        //insert child order
+        for ($i = 0; $i < count($request->detail); $i++) {
+            $vintrasId = $request->detail[$i]['VINTRASID']; //no_nota vintras
+            $tahunVintras = $request->detail[$i]['tahun']; //year of inquiry
+            $tipeInquiry = 'Tipe_Inquiry'; //field name on vintras
+            $paramVintras = '2'; //for first update on vintras
+            $userVintras = $request->head['CREATOR'];
+            $itemPath = ""; //path file reference
+            $uniParam = "SO||" . $request->head['jenis'] . "||" . $request->head['TGL_BUKTI'] . "||" . $request->head['tgl_due'] . "||" . $request->head['PO_CUST'] . "||" . $request->detail[$i]['QTY'] . " " . $request->detail[$i]['SAT'] . "||" . $request->detail[$i]['KET'] . "||" . $request->detail[$i]['merk'] . "||" . $request->head['no_ref'] . "||" . $request->head['NO_BUKTI'] . "||" . $request->head['NM_SALES'] . "||" . $itemPath . "||" . $request->head['TEMPO'] . " days " . $request->head['pay_term']; //value update vintras
+            if ($vintrasId != '') {
+                DB::select("CALL SP_UPDATE_VINTRAS('$vintrasId','$tahunVintras','$tipeInquiry','$paramVintras','$userVintras','$uniParam')");
+            }
+            $model = SalesOrderDetail::addData($request->detail[$i]);
+        }
+        // insert down payment
+        for ($i = 0; $i < count($request->um); $i++) {
+            $model = SalesOrderDetailUm::addData($request->um[$i]);
+        }
 
-            return $data;
+        DB::commit();
+        $message = 'Succesfully save data.';
+        $data = [
+            "result" => true,
+            'message' => $message,
+            "data" => $model
+        ];
+
+        return $data;
         } catch (\Exception $e) {
             DB::rollback();
             $message = 'Terjadi Error Server.';
@@ -491,6 +512,72 @@ class SalesOrderController extends Controller
             $message = 'Something wrong! Cannot delete data.';
             $data = [
                 "result" => false,
+                'message' => $message
+            ];
+            Log::debug($request->path() . " | "  . $message .  " | " . print_r($request->input(), TRUE));
+            return $data;
+        }
+    }
+
+    public function SalesOrderUpdateState(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $NO_BUKTI = $request->input('where')['NO_BUKTI'];
+            $NO_STOCK = $request->input('where')['NO_STOCK'];
+            $state = $request->input('post')['state'];
+            $do = salesDeliveryDetail::where('NO_STOCK', $NO_BUKTI)->where('NO_BUKTI', $NO_STOCK)->select(DB::RAW('ifnull(sum(qty),0) as qty'))->get();
+            $sr = SalesReturnDetail::where('NO_STOCK', $NO_BUKTI)->where('NO_BUKTI', $NO_STOCK)->select(DB::RAW('ifnull(sum(qty),0) as qty'))->get();
+            if ($state == 'B') {
+                if ($do[0]->qty - $sr[0]->qty > 0) {
+                    $message = 'can not cancel this item because there is already delivery';
+                } else {
+                    $query = salesOrderDetail::where('NO_STOCK', $NO_STOCK)
+                        ->where('NO_BUKTI', $NO_BUKTI)
+                        ->update([
+                            'state' => $state,
+                            'alasan' => $request->input('post')['alasan']
+                        ]);
+                    if ($query) {
+                        $message = 'success cancel item : ' . $NO_STOCK;
+                    }
+                }
+            } else if ($state == 'F') {
+                if ($do[0]->qty - $sr[0]->qty >= $request->input('post')['qty']) {
+                    $message = 'can not finish this item because there is already delivery';
+                } else {
+                    $query = salesOrderDetail::where('NO_STOCK', $NO_STOCK)
+                        ->where('NO_BUKTI', $NO_BUKTI)
+                        ->update([
+                            'state' => $state,
+                            'alasan' => $request->input('post')['alasan']
+                        ]);
+                    if ($query) {
+                        $message = 'success finish item : ' . $NO_STOCK;
+                    }
+                }
+            } else if ($state == '') {
+                $query = salesOrderDetail::where('NO_STOCK', $NO_STOCK)
+                    ->where('NO_BUKTI', $NO_BUKTI)
+                    ->update([
+                        'state' => $state,
+                        'alasan' => $request->input('post')['alasan']
+                    ]);
+                if ($query) {
+                    $message = 'success update item : ' . $NO_STOCK;
+                }
+            }
+            DB::commit();
+            $data = [
+                "result" => 'success',
+                'message' => $message,
+            ];
+            return $data;
+        } catch (\Exception $e) {
+            DB::rollback();
+            $message = 'Terjadi Error Server.';
+            $data = [
+                "result" => 'danger',
                 'message' => $message
             ];
             Log::debug($request->path() . " | "  . $message .  " | " . print_r($request->input(), TRUE));
