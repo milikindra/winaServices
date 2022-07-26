@@ -184,4 +184,11 @@ class CustomerController extends Controller
             return $data;
         }
     }
+
+    public function customerBranchGetById(request $request)
+    {
+        $model = CustomerShippingAddress::select('*');
+        $model->where('customer_id', $request->id_cust);
+        return $model->get();
+    }
 }

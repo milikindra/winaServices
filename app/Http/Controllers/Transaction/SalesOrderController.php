@@ -108,53 +108,52 @@ class SalesOrderController extends Controller
     {
         DB::beginTransaction();
         try {
-        // update address customer
-        if ($request->customer['address_alias'] == 'Main Address') {
-            $model = Customer::where('ID_CUST', $request->head['ID_CUST'])
-                ->update([
-                    'ALAMAT1' => $request->customer['other_address'],
-                    'ALAMAT2' => '',
-                    'EDITOR' => $request->head['EDITOR']
-                ]);
-        } else {
-            $model = CustomerShippingAddress::where('customer_id', $request->head['ID_CUST'])
-                ->where('address_alias', $request->customer['address_alias'])
-                ->update([
-                    'other_address' => $request->customer['other_address'],
-                    'user_modified' => $request->head['EDITOR']
-                ]);
-        }
-
-        // insert head update
-        $model = SalesOrder::addData($request->head);
-        //insert child order
-        for ($i = 0; $i < count($request->detail); $i++) {
-            $vintrasId = $request->detail[$i]['VINTRASID']; //no_nota vintras
-            $tahunVintras = $request->detail[$i]['tahun']; //year of inquiry
-            $tipeInquiry = 'Tipe_Inquiry'; //field name on vintras
-            $paramVintras = '2'; //for first update on vintras
-            $userVintras = $request->head['CREATOR'];
-            $itemPath = ""; //path file reference
-            $uniParam = "SO||" . $request->head['jenis'] . "||" . $request->head['TGL_BUKTI'] . "||" . $request->head['tgl_due'] . "||" . $request->head['PO_CUST'] . "||" . $request->detail[$i]['QTY'] . " " . $request->detail[$i]['SAT'] . "||" . $request->detail[$i]['KET'] . "||" . $request->detail[$i]['merk'] . "||" . $request->head['no_ref'] . "||" . $request->head['NO_BUKTI'] . "||" . $request->head['NM_SALES'] . "||" . $itemPath . "||" . $request->head['TEMPO'] . " days " . $request->head['pay_term']; //value update vintras
-            if ($vintrasId != '') {
-                DB::select("CALL SP_UPDATE_VINTRAS('$vintrasId','$tahunVintras','$tipeInquiry','$paramVintras','$userVintras','$uniParam')");
+            // update address customer
+            if ($request->customer['address_alias'] == 'Main Address') {
+                $model = Customer::where('ID_CUST', $request->head['ID_CUST'])
+                    ->update([
+                        'al_npwp' => $request->customer['other_address'],
+                        'EDITOR' => $request->head['EDITOR']
+                    ]);
+            } else {
+                $model = CustomerShippingAddress::where('customer_id', $request->head['ID_CUST'])
+                    ->where('address_alias', $request->customer['address_alias'])
+                    ->update([
+                        'other_address' => $request->customer['other_address'],
+                        'user_modified' => $request->head['EDITOR']
+                    ]);
             }
-            $model = SalesOrderDetail::addData($request->detail[$i]);
-        }
-        // insert down payment
-        for ($i = 0; $i < count($request->um); $i++) {
-            $model = SalesOrderDetailUm::addData($request->um[$i]);
-        }
 
-        DB::commit();
-        $message = 'Succesfully save data.';
-        $data = [
-            "result" => true,
-            'message' => $message,
-            "data" => $model
-        ];
+            // insert head update
+            $model = SalesOrder::addData($request->head);
+            //insert child order
+            for ($i = 0; $i < count($request->detail); $i++) {
+                $vintrasId = $request->detail[$i]['VINTRASID']; //no_nota vintras
+                $tahunVintras = $request->detail[$i]['tahun']; //year of inquiry
+                $tipeInquiry = 'Tipe_Inquiry'; //field name on vintras
+                $paramVintras = '2'; //for first update on vintras
+                $userVintras = $request->head['CREATOR'];
+                $itemPath = ""; //path file reference
+                $uniParam = "SO||" . $request->head['jenis'] . "||" . $request->head['TGL_BUKTI'] . "||" . $request->head['tgl_due'] . "||" . $request->head['PO_CUST'] . "||" . $request->detail[$i]['QTY'] . " " . $request->detail[$i]['SAT'] . "||" . $request->detail[$i]['KET'] . "||" . $request->detail[$i]['merk'] . "||" . $request->head['no_ref'] . "||" . $request->head['NO_BUKTI'] . "||" . $request->head['NM_SALES'] . "||" . $itemPath . "||" . $request->head['TEMPO'] . " days " . $request->head['pay_term']; //value update vintras
+                if ($vintrasId != '') {
+                    DB::select("CALL SP_UPDATE_VINTRAS('$vintrasId','$tahunVintras','$tipeInquiry','$paramVintras','$userVintras','$uniParam')");
+                }
+                $model = SalesOrderDetail::addData($request->detail[$i]);
+            }
+            // insert down payment
+            for ($i = 0; $i < count($request->um); $i++) {
+                $model = SalesOrderDetailUm::addData($request->um[$i]);
+            }
 
-        return $data;
+            DB::commit();
+            $message = 'Succesfully save data.';
+            $data = [
+                "result" => true,
+                'message' => $message,
+                "data" => $model
+            ];
+
+            return $data;
         } catch (\Exception $e) {
             DB::rollback();
             $message = 'Terjadi Error Server.';
@@ -171,7 +170,7 @@ class SalesOrderController extends Controller
     {
         $head = salesOrder::leftJoin('mascustomer', 'kontrak_head.ID_CUST', 'mascustomer.ID_CUST')
             ->where('kontrak_head.NO_BUKTI', $request->NO_BUKTI)
-            ->select('kontrak_head.*', 'mascustomer.ALAMAT1')
+            ->select('kontrak_head.*', 'mascustomer.ALAMAT1', 'mascustomer.al_npwp')
             ->get();
         $detail = salesOrderDetail::leftJoin('stock', 'stock.no_stock', 'kontrak_det.NO_STOCK')
             ->where('kontrak_det.NO_BUKTI', $request->NO_BUKTI)
@@ -195,6 +194,21 @@ class SalesOrderController extends Controller
     {
         DB::beginTransaction();
         try {
+             // update address customer
+            if ($request->customer['address_alias'] == 'Main Address') {
+                $model = Customer::where('ID_CUST', $request->head['ID_CUST'])
+                    ->update([
+                        'al_npwp' => $request->customer['other_address'],
+                        'EDITOR' => $request->head['EDITOR']
+                    ]);
+            } else {
+                $model = CustomerShippingAddress::where('customer_id', $request->head['ID_CUST'])
+                    ->where('address_alias', $request->customer['address_alias'])
+                    ->update([
+                        'other_address' => $request->customer['other_address'],
+                        'user_modified' => $request->head['EDITOR']
+                    ]);
+            }
             $old = salesOrderDetail::leftJoin('stock', 'stock.no_stock', 'kontrak_det.NO_STOCK')
                 ->where('kontrak_det.NO_BUKTI', $request->where['id'])
                 ->select('kontrak_det.*', 'stock.merk')

@@ -71,6 +71,7 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
     $router->post('customerAddSave', ['uses' => 'CustomerController@customerAddSave', 'as' => 'customerAddSave']);
     $router->post('customerEdit', ['uses' => 'CustomerController@customerEdit', 'as' => 'customerEdit']);
     $router->post('customerUpdate', ['uses' => 'CustomerController@customerUpdate', 'as' => 'customerUpdate']);
+    $router->post('customerBranchGetById', ['uses' => 'CustomerController@customerBranchGetById', 'as' => 'customerBranchGetById']);
 
 
     // sales
