@@ -79,6 +79,7 @@ class SalesOrder extends Model
         $model->ppntotdetail = $request['ppntotdetail'];
         $model->uangmuka = $request['uangmuka'];
         $model->uangmuka_ppn = $request['uangmuka_ppn'];
+        $model->use_branch = $request['use_branch'];
         $model->save();
         return $model;
     }

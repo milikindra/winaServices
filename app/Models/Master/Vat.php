@@ -31,4 +31,10 @@ class Vat extends Model
         $model = self::get();
         return $model;
     }
+
+    public static function getPopulate()
+    {
+        $model = self::select('*');
+        return $model;
+    }
 }

@@ -109,13 +109,7 @@ class SalesOrderController extends Controller
         DB::beginTransaction();
         try {
             // update address customer
-            if ($request->customer['address_alias'] == 'Main Address') {
-                $model = Customer::where('ID_CUST', $request->head['ID_CUST'])
-                    ->update([
-                        'al_npwp' => $request->customer['other_address'],
-                        'EDITOR' => $request->head['EDITOR']
-                    ]);
-            } else {
+            if ($request->head['use_branch'] == '1') {
                 $model = CustomerShippingAddress::where('customer_id', $request->head['ID_CUST'])
                     ->where('address_alias', $request->customer['address_alias'])
                     ->update([
@@ -194,7 +188,7 @@ class SalesOrderController extends Controller
     {
         DB::beginTransaction();
         try {
-             // update address customer
+            // update address customer
             if ($request->customer['address_alias'] == 'Main Address') {
                 $model = Customer::where('ID_CUST', $request->head['ID_CUST'])
                     ->update([

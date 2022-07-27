@@ -72,6 +72,7 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
     $router->post('customerEdit', ['uses' => 'CustomerController@customerEdit', 'as' => 'customerEdit']);
     $router->post('customerUpdate', ['uses' => 'CustomerController@customerUpdate', 'as' => 'customerUpdate']);
     $router->post('customerBranchGetById', ['uses' => 'CustomerController@customerBranchGetById', 'as' => 'customerBranchGetById']);
+    $router->post('customerAddBranch', ['uses' => 'CustomerController@customerAddBranch', 'as' => 'customerAddBranch']);
 
 
     // sales
@@ -88,6 +89,7 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
     $router->post('deptGetRawData', ['uses' => 'DepartmentController@deptGetRawData', 'as' => 'deptGetRawData']);
 
     // vat
+    $router->post('vat/getList', ['uses' => 'VatController@getList', 'as' => 'vat/getList']);
     $router->post('vatGetRawData', ['uses' => 'VatController@vatGetRawData', 'as' => 'vatGetRawData']);
 
     // globalParam

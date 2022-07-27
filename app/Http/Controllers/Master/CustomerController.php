@@ -26,7 +26,9 @@ class CustomerController extends Controller
 		FROM masrate ORDER BY tanggal DESC) as rate_tmp'), 'mascustomer.curr', 'rate_tmp.curr');
         $model->leftJoin('wina_m_other_address', 'mascustomer.ID_CUST', 'wina_m_other_address.customer_id');
         $model->where('mascustomer.ID_CUST', $request->id_cust);
-        return $model->get();
+        $model->count(); //for reset the query
+        $data = $model->get();
+        return $data;
     }
     public function customerGetForSi(Request $request)
     {
@@ -190,5 +192,30 @@ class CustomerController extends Controller
         $model = CustomerShippingAddress::select('*');
         $model->where('customer_id', $request->id_cust);
         return $model->get();
+    }
+
+    public function customerAddBranch(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $model = CustomerShippingAddress::addData($request->branch);
+            DB::commit();
+            $message = 'Succesfully save data.';
+            $data = [
+                "result" => true,
+                'message' => $message,
+                "data" => $model
+            ];
+            return $data;
+        } catch (\Exception $e) {
+            DB::rollback();
+            $message = 'Terjadi Error Server.';
+            $data = [
+                "result" => false,
+                'message' => $message
+            ];
+            Log::debug($request->path() . " | "  . $message .  " | " . print_r($request->input(), TRUE));
+            return $data;
+        }
     }
 }
