@@ -19,9 +19,6 @@ class VatController extends Controller
 
         $sdate = $request->input('sdate');
         $vat = Vat::getPopulate();
-        // if ($sdate != 'all') {
-        // $vat->where
-        // }
         if ($request->has('search')) {
             $keyword = $request->input('search');
             if (!empty($keyword)) {
@@ -82,9 +79,11 @@ class VatController extends Controller
         return response()->json($data);
     }
 
-    public function vatGetRawData()
+    public function vatGetData(Request $request)
     {
-        $model = Vat::getAll();
+        $model = Vat::select('*')
+            ->join(DB::RAW('((SELECT max( effective_date ) AS latest FROM maskodepajak  WHERE effective_date < "' . $request['sdate'] . '") AS r)'), 'maskodepajak.effective_date', 'r.latest')
+            ->get();
         return response()->json($model);
     }
 }

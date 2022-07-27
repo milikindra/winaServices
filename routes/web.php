@@ -90,7 +90,7 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
 
     // vat
     $router->post('vat/getList', ['uses' => 'VatController@getList', 'as' => 'vat/getList']);
-    $router->post('vatGetRawData', ['uses' => 'VatController@vatGetRawData', 'as' => 'vatGetRawData']);
+    $router->post('vatGetData', ['uses' => 'VatController@vatGetData', 'as' => 'vatGetData']);
 
     // globalParam
     $router->post('getGlobalParam', ['uses' => 'GlobalParamController@getGlobalParam', 'as' => 'getGlobalParam']);
