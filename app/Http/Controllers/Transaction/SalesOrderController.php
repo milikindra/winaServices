@@ -164,7 +164,7 @@ class SalesOrderController extends Controller
     {
         $head = salesOrder::leftJoin('mascustomer', 'kontrak_head.ID_CUST', 'mascustomer.ID_CUST')
             ->where('kontrak_head.NO_BUKTI', $request->NO_BUKTI)
-            ->select('kontrak_head.*', 'mascustomer.ALAMAT1', 'mascustomer.al_npwp')
+            ->select('kontrak_head.*', 'mascustomer.ALAMAT1', 'mascustomer.ALAMAT2', 'mascustomer.KOTA', 'mascustomer.PROPINSI', 'mascustomer.al_npwp')
             ->get();
         $detail = salesOrderDetail::leftJoin('stock', 'stock.no_stock', 'kontrak_det.NO_STOCK')
             ->where('kontrak_det.NO_BUKTI', $request->NO_BUKTI)
