@@ -106,58 +106,58 @@ class SalesOrderController extends Controller
 
     public function SalesOrderAddSave(Request $request)
     {
-        DB::beginTransaction();
-        try {
-            // update address customer
-            if ($request->head['use_branch'] == '1') {
-                $model = CustomerShippingAddress::where('customer_id', $request->head['ID_CUST'])
-                    ->where('address_alias', $request->customer['address_alias'])
-                    ->update([
-                        'other_address' => $request->customer['other_address'],
-                        'user_modified' => $request->head['EDITOR']
-                    ]);
-            }
-
-            // insert head update
-            $model = SalesOrder::addData($request->head);
-            //insert child order
-            for ($i = 0; $i < count($request->detail); $i++) {
-                $vintrasId = $request->detail[$i]['VINTRASID']; //no_nota vintras
-                $tahunVintras = $request->detail[$i]['tahun']; //year of inquiry
-                $tipeInquiry = 'Tipe_Inquiry'; //field name on vintras
-                $paramVintras = '2'; //for first update on vintras
-                $userVintras = $request->head['CREATOR'];
-                $itemPath = ""; //path file reference
-                $uniParam = "SO||" . $request->head['jenis'] . "||" . $request->head['TGL_BUKTI'] . "||" . $request->head['tgl_due'] . "||" . $request->head['PO_CUST'] . "||" . $request->detail[$i]['QTY'] . " " . $request->detail[$i]['SAT'] . "||" . $request->detail[$i]['KET'] . "||" . $request->detail[$i]['merk'] . "||" . $request->head['no_ref'] . "||" . $request->head['NO_BUKTI'] . "||" . $request->head['NM_SALES'] . "||" . $itemPath . "||" . $request->head['TEMPO'] . " days " . $request->head['pay_term']; //value update vintras
-                if ($vintrasId != '') {
-                    DB::select("CALL SP_UPDATE_VINTRAS('$vintrasId','$tahunVintras','$tipeInquiry','$paramVintras','$userVintras','$uniParam')");
-                }
-                $model = SalesOrderDetail::addData($request->detail[$i]);
-            }
-            // insert down payment
-            for ($i = 0; $i < count($request->um); $i++) {
-                $model = SalesOrderDetailUm::addData($request->um[$i]);
-            }
-
-            DB::commit();
-            $message = 'Succesfully save data.';
-            $data = [
-                "result" => true,
-                'message' => $message,
-                "data" => $model
-            ];
-
-            return $data;
-        } catch (\Exception $e) {
-            DB::rollback();
-            $message = 'Terjadi Error Server.';
-            $data = [
-                "result" => false,
-                'message' => $message
-            ];
-            Log::debug($request->path() . " | "  . $message .  " | " . print_r($request->input(), TRUE));
-            return $data;
+        // DB::beginTransaction();
+        // try {
+        // update address customer
+        if ($request->head['use_branch'] == '1') {
+            $model = CustomerShippingAddress::where('customer_id', $request->head['ID_CUST'])
+                ->where('address_alias', $request->customer['address_alias'])
+                ->update([
+                    'other_address' => $request->customer['other_address'],
+                    'user_modified' => $request->head['EDITOR']
+                ]);
         }
+
+        // insert head update
+        $model = SalesOrder::addData($request->head);
+        //insert child order
+        for ($i = 0; $i < count($request->detail); $i++) {
+            $vintrasId = $request->detail[$i]['VINTRASID']; //no_nota vintras
+            $tahunVintras = $request->detail[$i]['tahun']; //year of inquiry
+            $tipeInquiry = 'Tipe_Inquiry'; //field name on vintras
+            $paramVintras = '2'; //for first update on vintras
+            $userVintras = $request->head['CREATOR'];
+            $itemPath = ""; //path file reference
+            $uniParam = "SO||" . $request->head['jenis'] . "||" . $request->head['TGL_BUKTI'] . "||" . $request->head['tgl_due'] . "||" . $request->head['PO_CUST'] . "||" . $request->detail[$i]['QTY'] . " " . $request->detail[$i]['SAT'] . "||" . $request->detail[$i]['KET'] . "||" . $request->detail[$i]['merk'] . "||" . $request->head['no_ref'] . "||" . $request->head['NO_BUKTI'] . "||" . $request->head['NM_SALES'] . "||" . $itemPath . "||" . $request->head['TEMPO'] . " days " . $request->head['pay_term']; //value update vintras
+            if ($vintrasId != '') {
+                DB::select("CALL SP_UPDATE_VINTRAS('$vintrasId','$tahunVintras','$tipeInquiry','$paramVintras','$userVintras','$uniParam')");
+            }
+            $model = SalesOrderDetail::addData($request->detail[$i]);
+        }
+        // insert down payment
+        for ($i = 0; $i < count($request->um); $i++) {
+            $model = SalesOrderDetailUm::addData($request->um[$i]);
+        }
+
+        // DB::commit();
+        $message = 'Succesfully save data.';
+        $data = [
+            "result" => true,
+            'message' => $message,
+            "data" => $model
+        ];
+
+        return $data;
+        // } catch (\Exception $e) {
+        //     DB::rollback();
+        //     $message = 'Terjadi Error Server.';
+        //     $data = [
+        //         "result" => false,
+        //         'message' => $message
+        //     ];
+        //     Log::debug($request->path() . " | "  . $message .  " | " . print_r($request->input(), TRUE));
+        //     return $data;
+        // }
     }
 
     public function salesOrderDetail(Request $request)
