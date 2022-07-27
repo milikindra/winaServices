@@ -106,8 +106,8 @@ class SalesOrderController extends Controller
 
     public function SalesOrderAddSave(Request $request)
     {
-        // DB::beginTransaction();
-        // try {
+        DB::beginTransaction();
+        try {
         // update address customer
         if ($request->head['use_branch'] == '1') {
             $model = CustomerShippingAddress::where('customer_id', $request->head['ID_CUST'])
@@ -139,7 +139,7 @@ class SalesOrderController extends Controller
             $model = SalesOrderDetailUm::addData($request->um[$i]);
         }
 
-        // DB::commit();
+        DB::commit();
         $message = 'Succesfully save data.';
         $data = [
             "result" => true,
@@ -148,16 +148,16 @@ class SalesOrderController extends Controller
         ];
 
         return $data;
-        // } catch (\Exception $e) {
-        //     DB::rollback();
-        //     $message = 'Terjadi Error Server.';
-        //     $data = [
-        //         "result" => false,
-        //         'message' => $message
-        //     ];
-        //     Log::debug($request->path() . " | "  . $message .  " | " . print_r($request->input(), TRUE));
-        //     return $data;
-        // }
+        } catch (\Exception $e) {
+            DB::rollback();
+            $message = 'Terjadi Error Server.';
+            $data = [
+                "result" => false,
+                'message' => $message
+            ];
+            Log::debug($request->path() . " | "  . $message .  " | " . print_r($request->input(), TRUE));
+            return $data;
+        }
     }
 
     public function salesOrderDetail(Request $request)
