@@ -21,7 +21,7 @@ class CustomerController extends Controller
 
     public function customerGetById(Request $request)
     {
-        $model = Customer::select('mascustomer.*', 'wina_m_other_address.address_alias', 'wina_m_other_address.tax_number', 'wina_m_other_address.other_address');
+        $model = Customer::select('mascustomer.*', 'rate_tmp.rate', 'wina_m_other_address.address_alias', 'wina_m_other_address.tax_number', 'wina_m_other_address.other_address');
         $model->leftJoin(DB::RAW('(SELECT DISTINCT curr, rate
 		FROM masrate ORDER BY tanggal DESC) as rate_tmp'), 'mascustomer.curr', 'rate_tmp.curr');
         $model->leftJoin('wina_m_other_address', 'mascustomer.ID_CUST', 'wina_m_other_address.customer_id');
