@@ -126,12 +126,13 @@ class InventoryController extends Controller
             return $data;
         } catch (\Exception $e) {
             DB::rollback();
-            $message = 'Terjadi Error Server.';
+            $message = 'Something went wrong.';
             $data = [
                 "result" => false,
                 'message' => $message
             ];
             Log::debug($request->path() . " | "  . $message .  " | " . print_r($request->input(), TRUE));
+            Log::debug($e);
             return $data;
         }
     }
