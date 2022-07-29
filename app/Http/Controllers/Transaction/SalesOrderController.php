@@ -156,6 +156,7 @@ class SalesOrderController extends Controller
                 'message' => $message
             ];
             Log::debug($request->path() . " | "  . $message .  " | " . print_r($request->input(), TRUE));
+            Log::debug($e->getMessage() . ' in ' . $e->getFile() . ' line ' . $e->getLine());
             return $data;
         }
     }
@@ -189,13 +190,7 @@ class SalesOrderController extends Controller
         DB::beginTransaction();
         try {
             // update address customer
-            if ($request->customer['address_alias'] == 'Main Address') {
-                $model = Customer::where('ID_CUST', $request->head['ID_CUST'])
-                    ->update([
-                        'al_npwp' => $request->customer['other_address'],
-                        'EDITOR' => $request->head['EDITOR']
-                    ]);
-            } else {
+            if ($request->head['use_branch'] == '1') {
                 $model = CustomerShippingAddress::where('customer_id', $request->head['ID_CUST'])
                     ->where('address_alias', $request->customer['address_alias'])
                     ->update([
@@ -203,6 +198,7 @@ class SalesOrderController extends Controller
                         'user_modified' => $request->head['EDITOR']
                     ]);
             }
+
             $old = salesOrderDetail::leftJoin('stock', 'stock.no_stock', 'kontrak_det.NO_STOCK')
                 ->where('kontrak_det.NO_BUKTI', $request->where['id'])
                 ->select('kontrak_det.*', 'stock.merk')
@@ -380,6 +376,7 @@ class SalesOrderController extends Controller
                 'message' => $message
             ];
             Log::debug($request->path() . " | "  . $message .  " | " . print_r($request->input(), TRUE));
+            Log::debug($e->getMessage() . ' in ' . $e->getFile() . ' line ' . $e->getLine());
             return $data;
         }
     }
@@ -523,6 +520,7 @@ class SalesOrderController extends Controller
                 'message' => $message
             ];
             Log::debug($request->path() . " | "  . $message .  " | " . print_r($request->input(), TRUE));
+            Log::debug($e->getMessage() . ' in ' . $e->getFile() . ' line ' . $e->getLine());
             return $data;
         }
     }
@@ -589,6 +587,7 @@ class SalesOrderController extends Controller
                 'message' => $message
             ];
             Log::debug($request->path() . " | "  . $message .  " | " . print_r($request->input(), TRUE));
+            Log::debug($e->getMessage() . ' in ' . $e->getFile() . ' line ' . $e->getLine());
             return $data;
         }
     }
