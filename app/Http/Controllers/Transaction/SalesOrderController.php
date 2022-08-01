@@ -16,6 +16,7 @@ use App\Models\Transaction\SalesDeliveryDetail;
 use App\Models\Transaction\SalesReturnDetail;
 use App\Models\Master\Customer;
 use App\Models\Master\CustomerShippingAddress;
+use App\Models\Master\FilePath;
 
 class SalesOrderController extends Controller
 {
@@ -137,6 +138,11 @@ class SalesOrderController extends Controller
             // insert down payment
             for ($i = 0; $i < count($request->um); $i++) {
                 $model = SalesOrderDetailUm::addData($request->um[$i]);
+            }
+
+            // insert attach file
+            for ($i = 0; $i < count($request->attach); $i++) {
+                $model = FilePath::addData($request->attach[$i]);
             }
 
             DB::commit();
