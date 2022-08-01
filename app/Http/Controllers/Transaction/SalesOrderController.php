@@ -178,11 +178,13 @@ class SalesOrderController extends Controller
             ->select('kontrak_det.*', 'stock.merk')
             ->get();
         $um = SalesOrderDetailUm::where('kontrak_det_um.NO_BUKTI', $request->NO_BUKTI)->select('*')->get();
+        $attach = FilePath::where('name', $request->NO_BUKTI)->where('module', 'SO')->select('*')->get();
 
         $mergeData = [
             "head" => $head,
             "detail" => $detail,
-            "um" => $um
+            "um" => $um,
+            "attach" => $attach
         ];
         // log::debug($mergeData);
         $data = [
@@ -509,9 +511,8 @@ class SalesOrderController extends Controller
     public function salesOrderDelete(Request $request)
     {
         try {
-            // DB::enableQueryLog();
-            $fileLocal = FilePath::where('name', $request->NO_BUKTI)->where('module', 'so')->get();
-            $model = FilePath::where('name', $request->NO_BUKTI)->where('module', 'so')->delete();
+            $fileLocal = FilePath::where('name', $request->NO_BUKTI)->where('module', 'SO')->get();
+            $model = FilePath::where('name', $request->NO_BUKTI)->where('module', 'SO')->delete();
             $model = SalesOrder::deleteData($request->NO_BUKTI);
             DB::commit();
             $message = 'Succesfully delete data.';
