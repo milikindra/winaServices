@@ -510,12 +510,15 @@ class SalesOrderController extends Controller
     {
         try {
             // DB::enableQueryLog();
+            $fileLocal = FilePath::where('name', $request->NO_BUKTI)->where('module', 'so')->get();
+            $model = FilePath::where('name', $request->NO_BUKTI)->where('module', 'so')->delete();
             $model = SalesOrder::deleteData($request->NO_BUKTI);
             DB::commit();
             $message = 'Succesfully delete data.';
             $data = [
                 "result" => true,
                 'message' => $message,
+                'fileLocal' => $fileLocal
             ];
             return $data;
         } catch (\Exception $e) {
