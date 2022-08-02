@@ -359,6 +359,9 @@ class SalesOrderController extends Controller
             }
             SalesOrderDetail::where('NO_BUKTI', $request->where['id'])->delete();
             SalesOrderDetailUm::where('NO_BUKTI', $request->where['id'])->delete();
+            $fileLocal = FilePath::where('name', $request->where['id'])->where('module', 'SO')->get();
+            FilePath::where('name', $request->where['id'])->where('module', 'SO')->delete();
+
             $model = SalesOrder::updateData($request->head, $request->where);
             for ($i = 0; $i < count($request->detail); $i++) {
                 $model = SalesOrderDetail::addData($request->detail[$i]);
@@ -367,12 +370,18 @@ class SalesOrderController extends Controller
                 $model = SalesOrderDetailUm::addData($request->um[$i]);
             }
 
+            // insert attach file
+            for ($i = 0; $i < count($request->attach); $i++) {
+                $model = FilePath::addData($request->attach[$i]);
+            }
+
             DB::commit();
             $message = 'Succesfully save data.';
             $data = [
                 "result" => true,
                 'message' => $message,
-                "data" => $model
+                "data" => $model,
+                'fileLocal' => $fileLocal
             ];
 
             return $data;
