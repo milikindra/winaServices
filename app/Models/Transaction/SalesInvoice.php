@@ -37,4 +37,32 @@ class SalesInvoice extends Model
         $model = self::select("jual_head.*", DB::raw(" GROUP_CONCAT( DISTINCT jual_det.no_sj ORDER BY jual_det.no_sj SEPARATOR ';' ) as DO_id"));
         return $model;
     }
+
+    public static function getPopulateSalesInvoice()
+    {
+        $model = self::select(
+            'jual_head.no_bukti2',
+            'jual_head.tag',
+            'jual_head.TGL_BUKTI',
+            'jual_head.ID_CUST',
+            'jual_head.NM_CUST',
+            'jual_head.NM_SALES',
+            'jual_head.TEMPO',
+            'jual_head.no_so',
+            'jual_head.curr',
+            'jual_head.rate',
+            'jual_head.isWapu',
+            'jual_head.no_pajak',
+            'jual_head.totdpp_rp',
+            'jual_head.totppn_rp',
+            'jual_head.total_rp',
+            'jual_head.no_tt',
+            'jual_head.tgl_tt',
+            'jual_head.penerima_tt',
+            DB::RAW('DATE_ADD(jual_head.tgl_tt, INTERVAL jual_head.TEMPO DAY) as due_date'),
+            DB::RAW('DATEDIFF(CURDATE(), DATE_ADD(jual_head.tgl_tt, INTERVAL jual_head.TEMPO DAY) ) as age'),
+            'jual_head.TOTAL_Pendapatan'
+        );
+        return $model;
+    }
 }

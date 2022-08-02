@@ -218,4 +218,29 @@ class CustomerController extends Controller
             return $data;
         }
     }
+
+    public function customerDelete(Request $request)
+    {
+        try {
+            Customer::where('ID_CUST', $request->ID_CUST)->delete();
+            CustomerShippingAddress::where('customer_id', $request->ID_CUST)->delete();
+            DB::commit();
+            $message = 'Succesfully delete data.';
+            $data = [
+                "result" => true,
+                'message' => $message,
+            ];
+            return $data;
+        } catch (\Exception $e) {
+            DB::rollback();
+            $message = 'Something wrong! Cannot delete data.';
+            $data = [
+                "result" => false,
+                'message' => $message
+            ];
+            Log::debug($request->path() . " | "  . $message .  " | " . print_r($request->input(), TRUE));
+            Log::debug($e->getMessage() . ' in ' . $e->getFile() . ' line ' . $e->getLine());
+            return $data;
+        }
+    }
 }

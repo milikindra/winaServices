@@ -73,6 +73,7 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
     $router->post('customerUpdate', ['uses' => 'CustomerController@customerUpdate', 'as' => 'customerUpdate']);
     $router->post('customerBranchGetById', ['uses' => 'CustomerController@customerBranchGetById', 'as' => 'customerBranchGetById']);
     $router->post('customerAddBranch', ['uses' => 'CustomerController@customerAddBranch', 'as' => 'customerAddBranch']);
+    $router->post('customerDelete', ['uses' => 'CustomerController@customerDelete', 'as' => 'customerDelete']);
 
 
     // sales
@@ -120,6 +121,7 @@ $router->group(['namespace' => 'Transaction'], function () use ($router) {
 
     // SalesInvoice
     $router->post('siGetEfaktur', ['uses' => 'SalesInvoiceController@siGetEfaktur', 'as' => 'siGetEfaktur']);
+    $router->post('salesInvoice/getList', ['uses' =>  'SalesInvoiceController@getList', 'as' => 'salesInvoice/getList']);
 });
 
 $router->group(['namespace' => 'Report'], function () use ($router) {
