@@ -40,7 +40,6 @@ class SalesInvoiceController extends Controller
 
     public function getList(Request $request)
     {
-        Log::debug($request);
         $model = new SalesOrder();
         $fields = $model->getTableColumns();
         $void = $request->input('void');
@@ -54,16 +53,16 @@ class SalesInvoiceController extends Controller
         //     $si = SalesInvoice::getPopulateSalesInvoiceDetail();
         // }
 
-        // if ($fdate == "Y") {
-        //     if ($sdate == null) {
-        //         $sdate = Carbon::parse($request->sdate)->format('Y-m-d');
-        //     }
+        if ($fdate == "Y") {
+            if ($sdate == null) {
+                $sdate = Carbon::parse($request->sdate)->format('Y-m-d');
+            }
 
-        //     if ($edate == null) {
-        //         $edate = Carbon::parse($request->edate)->format('Y-m-d');
-        //     }
-        //     $si->whereBetween('TGL_BUKTI', [$sdate, $edate]);
-        // }
+            if ($edate == null) {
+                $edate = Carbon::parse($request->edate)->format('Y-m-d');
+            }
+            $si->whereBetween('jual_head.TGL_BUKTI', [$sdate, $edate]);
+        }
 
         if ($kategori == "lunas") {
             $si->where('jual_head.total_rp', 'jual_head.TOTAL_Pendapatan');
