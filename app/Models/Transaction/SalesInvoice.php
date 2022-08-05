@@ -61,8 +61,46 @@ class SalesInvoice extends Model
             'jual_head.penerima_tt',
             DB::RAW('DATE_ADD(jual_head.tgl_tt, INTERVAL jual_head.TEMPO DAY) as due_date'),
             DB::RAW('DATEDIFF(CURDATE(), DATE_ADD(jual_head.tgl_tt, INTERVAL jual_head.TEMPO DAY) ) as age'),
-            'jual_head.TOTAL_Pendapatan'
+            'bayar.income'
         );
+        $model->leftJoin(DB::RAW('( SELECT sum( ifnull( nilai, 0 )+ ifnull( potongan, 0 )) AS income, no_nota FROM bayar_det GROUP BY no_nota ) AS bayar'), 'bayar.no_nota', 'jual_head.NO_BUKTI');
+        return $model;
+    }
+
+    public static function getPopulateSalesInvoiceDetail()
+    {
+        $model = self::select(
+            'jual_head.no_bukti2',
+            'jual_head.tag',
+            'jual_head.TGL_BUKTI',
+            'jual_head.ID_CUST',
+            'jual_head.NM_CUST',
+            'jual_head.NM_SALES',
+            'jual_head.TEMPO',
+            'jual_head.no_so',
+            'jual_head.curr',
+            'jual_head.rate',
+            'jual_head.isWapu',
+            'jual_head.no_pajak',
+            'jual_head.totdpp_rp',
+            'jual_head.totppn_rp',
+            'jual_head.total_rp',
+            'jual_head.no_tt',
+            'jual_head.tgl_tt',
+            'jual_head.penerima_tt',
+            DB::RAW('DATE_ADD(jual_head.tgl_tt, INTERVAL jual_head.TEMPO DAY) as due_date'),
+            DB::RAW('DATEDIFF(CURDATE(), DATE_ADD(jual_head.tgl_tt, INTERVAL jual_head.TEMPO DAY) ) as age'),
+            'jual_det.no_sj',
+            'jual_det.NO_STOCK',
+            'jual_det.NM_STOCK',
+            'jual_det.QTY',
+            'jual_det.SAT',
+            'jual_det.HARGA',
+            'jual_det.JUMLAH',
+            'bayar.income'
+        );
+        $model->leftJoin(DB::RAW('( SELECT sum( ifnull( nilai, 0 )+ ifnull( potongan, 0 )) AS income, no_nota FROM bayar_det GROUP BY no_nota ) AS bayar'), 'bayar.no_nota', 'jual_head.NO_BUKTI');
+        $model->leftJoin('jual_det', 'jual_head.NO_BUKTI', 'jual_det.NO_BUKTI');
         return $model;
     }
 }
