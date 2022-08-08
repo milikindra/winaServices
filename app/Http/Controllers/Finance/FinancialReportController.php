@@ -121,27 +121,34 @@ class FinancialReportController extends Controller
 
     public function getListPnlProjectList(request $request)
     {
-        $model = new Tmp_PnlProject();
-        $fields = $model->getTableColumns();
-        $so_id = '';
-        $sdate = $request->input('sdate');
-        $edate = $request->input('edate');
-        $isAssumptionCost = ($request->input('isAssumptionCost') == "Y") ? "Y" : "";
-        $isOverhead = ($request->input('isOverhead') == "Y") ? "Y" : "";
-        $showProjectBy = $request->input('showProjectBy');
-        if ($showProjectBy == 'clear') {
-            $showProjectBy == 'C';
-        } else if ($showProjectBy == 'cr') {
-            $showProjectBy == 'R';
-        } else {
-            $showProjectBy = '';
-        }
-        $showProject = $request->input('showProject');
-        $isShowRecord = 'N';
+        Log::debug($request);
+        if ($request->input('isCache') == "N") {
+            $so_id = '';
+            $sdate = $request->input('sdate');
+            $edate = $request->input('edate');
+            $isAssumptionCost = ($request->input('isAssumptionCost') == "Y") ? "Y" : "";
+            $isOverhead = ($request->input('isOverhead') == "Y") ? "Y" : "";
 
-        DB::select("CALL TF_RL_SO_LIST('$so_id','$sdate','$edate', '$isOverhead', '$isAssumptionCost','$isShowRecord','$showProjectBy')");
-        $model = new Tmp_PnlProjectList();
-        $balance = Tmp_PnlProjectList::getPopulate();
+            $showProjectBy = $request->input('showProjectBy');
+            if ($showProjectBy == 'clear') {
+                $showProjectBy == 'C';
+            } else if ($showProjectBy == 'cr') {
+                $showProjectBy == 'R';
+            } else {
+                $showProjectBy = '';
+            }
+            $showProject = $request->input('showProject');
+            $isShowRecord = 'N';
+            DB::select("CALL TF_RL_SO_LIST('$so_id','$sdate','$edate', '$isOverhead', '$isAssumptionCost','$isShowRecord','$showProjectBy')");
+        }
+        $balance = Tmp_PnlProjectList::select(DB::RAW(' no_SO, tgl_SO, tgl_Last_DO, jenisSO, note_PH, nm_cust, Sales, no_po, Tag, REVENUE, COGS, 
+		InOrdered, StockInHand, ItemAdjustment, 
+		Gross_Profit, 
+		case when ifnull(REVENUE,0) <> 0 then round(Gross_Profit / REVENUE * 100,2) else 0 end as prosen1, 
+		Opr_Exp, Ass_Exp, OH_Exp, other_exp, Other_inc, 
+		Profit,
+		case when ifnull(REVENUE,0) <> 0 then round(Profit / REVENUE * 100,2) else 0 end as prosen2,
+		tgl_clear, tgl_create_cr, DATEDIFF(tgl_clear,tgl_SO) as umur'));
         $balance->orderBy('tgl_so', 'asc');
         $balance->orderBy('no_so', 'asc');
         $data = [
@@ -151,7 +158,6 @@ class FinancialReportController extends Controller
 
         return response()->json($data);
     }
-
 
     public function getPnlProject(Request $request)
     {

@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\DB;
 class Tmp_PnlProjectList extends Model
 {
 
-    protected $table = '_BBRLHasilSO';
+    // protected $table = '_BBRLHasilSO';
+    protected $table = 'wina_sv_pnlprojectlist';
     protected $primaryKey = null;
     public $timestamps = false;
     public $incrementing = false;
@@ -32,16 +33,16 @@ class Tmp_PnlProjectList extends Model
         return $model;
     }
 
-    public static function getPopulate()
-    {
-        $model = self::select(DB::RAW(' no_SO, tgl_SO, tgl_Last_DO, jenisSO, note_PH, nm_cust, Sales, no_po, Tag, REVENUE, COGS, 
-		InOrdered, StockInHand, ItemAdjustment, 
-		Gross_Profit, 
-		case when ifnull(REVENUE,0) <> 0 then round(Gross_Profit / REVENUE * 100,2) else 0 end as prosen1, 
-		Opr_Exp, Ass_Exp, OH_Exp, other_exp, Other_inc, 
-		Profit,
-		case when ifnull(REVENUE,0) <> 0 then round(Profit / REVENUE * 100,2) else 0 end as prosen2,
-		tgl_clear, tgl_create_cr, DATEDIFF(tgl_clear,tgl_SO) as umur'));
-        return $model;
-    }
+    // public static function getPopulate()
+    // {
+    //     $model = self::select(DB::RAW(' no_SO, tgl_SO, tgl_Last_DO, jenisSO, note_PH, nm_cust, Sales, no_po, Tag, REVENUE, COGS, 
+	// 	InOrdered, StockInHand, ItemAdjustment, 
+	// 	Gross_Profit, 
+	// 	case when ifnull(REVENUE,0) <> 0 then round(Gross_Profit / REVENUE * 100,2) else 0 end as prosen1, 
+	// 	Opr_Exp, Ass_Exp, OH_Exp, other_exp, Other_inc, 
+	// 	Profit,
+	// 	case when ifnull(REVENUE,0) <> 0 then round(Profit / REVENUE * 100,2) else 0 end as prosen2,
+	// 	tgl_clear, tgl_create_cr, DATEDIFF(tgl_clear,tgl_SO) as umur'));
+    //     return $model;
+    // }
 }
