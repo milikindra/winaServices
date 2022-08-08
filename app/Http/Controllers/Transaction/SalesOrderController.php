@@ -410,15 +410,22 @@ class SalesOrderController extends Controller
     {
         $model = new SalesOrder();
         $fields = $model->getTableColumns();
-        $so = SalesOrder::getPopulateSalesOrderHead();
+        // $so = SalesOrder::getPopulateSalesOrderHead();
+        $so = SalesOrder::select('kontrak_head.*', 'mascurr.rek_ptg', 'mascustomer.isWapu');
+        $so->leftJoin('mascurr', 'kontrak_head.curr', 'mascurr.curr');
+        $so->leftJoin('mascustomer', 'kontrak_head.ID_CUST', 'mascustomer.ID_CUST');
 
         if ($request->has('search')) {
             $keyword = $request->input('search');
             if (!empty($keyword)) {
                 $so->where(function ($query) use ($keyword, $fields) {
-                    $query->orWhere('NO_BUKTI', 'LIKE', "%$keyword%");
+                    $query->orWhere('kontrak_head.NO_BUKTI', 'LIKE', "%$keyword%");
                 });
             }
+        }
+
+        if ($request->input('field') != 'all') {
+            $so->where($request->input('field'), $request->input('value'));
         }
 
         $filteredData = $so->get();
@@ -441,7 +448,7 @@ class SalesOrderController extends Controller
                 $so->orderBy($column, $direction);
             }
         } else {
-            $so->orderBy('NO_BUKTI', 'asc');
+            $so->orderBy('kontrak_head.NO_BUKTI', 'asc');
         }
         if ($request->has('current_page')) {
             $page = $request->input('current_page');

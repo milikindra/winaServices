@@ -177,7 +177,7 @@ class CustomerController extends Controller
             return $data;
         } catch (\Exception $e) {
             DB::rollback();
-            $message = 'Terjadi Error Server.';
+            $message = 'Server Error.';
             $data = [
                 "result" => false,
                 'message' => $message
@@ -209,7 +209,7 @@ class CustomerController extends Controller
             return $data;
         } catch (\Exception $e) {
             DB::rollback();
-            $message = 'Terjadi Error Server.';
+            $message = 'Server Error on add Branch.';
             $data = [
                 "result" => false,
                 'message' => $message

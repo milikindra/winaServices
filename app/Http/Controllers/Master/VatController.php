@@ -81,9 +81,12 @@ class VatController extends Controller
 
     public function vatGetData(Request $request)
     {
-        $model = Vat::select('*')
-            ->join(DB::RAW('((SELECT max( effective_date ) AS latest FROM maskodepajak  WHERE effective_date < "' . $request['sdate'] . '") AS r)'), 'maskodepajak.effective_date', 'r.latest')
-            ->get();
-        return response()->json($model);
+        $model = Vat::select('*');
+        $model->join(DB::RAW('((SELECT max( effective_date ) AS latest FROM maskodepajak  WHERE effective_date < "' . $request['sdate'] . '") AS r)'), 'maskodepajak.effective_date', 'r.latest');
+        if ($request['flag'] != 'all') {
+            $model->where('maskodepajak.flag', $request['flag']);
+        }
+        $data = $model->get();
+        return response()->json($data);
     }
 }

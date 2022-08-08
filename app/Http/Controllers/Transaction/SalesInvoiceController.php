@@ -27,7 +27,7 @@ class SalesInvoiceController extends Controller
             $no_so = $modelSi[0]['no_so_um'];
         }
 
-        $modelSo = SalesInvoice::getById()->where('kontrak_head.NO_BUKTI', $no_so)->get()->toArray();
+        $modelSo = SalesOrder::getById()->where('kontrak_head.NO_BUKTI', $no_so)->get()->toArray();
         if ($modelSo == null) {
             $modelSo[0]['PO_CUST'] = null;
         }
@@ -40,7 +40,7 @@ class SalesInvoiceController extends Controller
 
     public function getList(Request $request)
     {
-        $model = new SalesOrder();
+        $model = new SalesInvoice();
         $fields = $model->getTableColumns();
         $void = $request->input('void');
 
@@ -49,9 +49,9 @@ class SalesInvoiceController extends Controller
         $sdate = $request->input('sdate');
         $edate = $request->input('edate');
         $si = SalesInvoice::getPopulateSalesInvoice();
-        // if ($void == "Y") {
-        //     $si = SalesInvoice::getPopulateSalesInvoiceDetail();
-        // }
+        if ($void == "Y") {
+            $si = SalesInvoice::getPopulateSalesInvoiceDetail();
+        }
 
         if ($fdate == "Y") {
             if ($sdate == null) {
@@ -65,9 +65,9 @@ class SalesInvoiceController extends Controller
         }
 
         if ($kategori == "lunas") {
-            $si->where('jual_head.total_rp', 'jual_head.TOTAL_Pendapatan');
+            $si->whereRaw('jual_head.total_rp = bayar.income');
         } else if ($kategori == "outstanding") {
-            $si->where('jual_head.total_rp', '>', 'jual_head.TOTAL_Pendapatan');
+            $si->whereRaw('jual_head.total_rp > bayar.income');
         }
 
         if ($request->has('search')) {
@@ -78,7 +78,6 @@ class SalesInvoiceController extends Controller
                 });
             }
         }
-
         $filteredData = $si->get();
         $totalRows = $si->count();
 
@@ -99,7 +98,7 @@ class SalesInvoiceController extends Controller
                 $si->orderBy($column, $direction);
             }
         } else {
-            $si->orderBy('jual_head.no_bukti2', 'asc');
+            // $si->orderBy('jual_head.no_bukti2', 'asc');
         }
         if ($request->has('current_page')) {
             $page = $request->input('current_page');
