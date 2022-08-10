@@ -122,23 +122,23 @@ class FinancialReportController extends Controller
     public function getListPnlProjectList(request $request)
     {
         Log::debug($request);
-        if ($request->input('isCache') == "N") {
-            $so_id = '';
-            $sdate = $request->input('sdate');
-            $edate = $request->input('edate');
-            $isAssumptionCost = ($request->input('isAssumptionCost') == "Y") ? "Y" : "";
-            $isOverhead = ($request->input('isOverhead') == "Y") ? "Y" : "";
+        $sdate = $request->input('sdate');
+        $edate = $request->input('edate');
+        $so_id = '';
+        $isAssumptionCost = ($request->input('isAssumptionCost') == "Y") ? "Y" : "";
+        $isOverhead = ($request->input('isOverhead') == "Y") ? "Y" : "";
 
-            $showProjectBy = $request->input('showProjectBy');
-            if ($showProjectBy == 'clear') {
-                $showProjectBy == 'C';
-            } else if ($showProjectBy == 'cr') {
-                $showProjectBy == 'R';
-            } else {
-                $showProjectBy = '';
-            }
-            $showProject = $request->input('showProject');
-            $isShowRecord = 'N';
+        $showProjectBy = $request->input('showProjectBy');
+        if ($showProjectBy == 'clear') {
+            $showProjectBy == 'C';
+        } else if ($showProjectBy == 'cr') {
+            $showProjectBy == 'R';
+        } else {
+            $showProjectBy = '';
+        }
+        $showProject = $request->input('showProject');
+        $isShowRecord = 'N';
+        if ($request->input('isCache') == "N") {
             DB::select("CALL TF_RL_SO_LIST('$so_id','$sdate','$edate', '$isOverhead', '$isAssumptionCost','$isShowRecord','$showProjectBy')");
         }
         $balance = Tmp_PnlProjectList::select(DB::RAW(' no_SO, tgl_SO, tgl_Last_DO, jenisSO, note_PH, nm_cust, Sales, no_po, Tag, REVENUE, COGS, 
@@ -149,6 +149,11 @@ class FinancialReportController extends Controller
 		Profit,
 		case when ifnull(REVENUE,0) <> 0 then round(Profit / REVENUE * 100,2) else 0 end as prosen2,
 		tgl_clear, tgl_create_cr, DATEDIFF(tgl_clear,tgl_SO) as umur'));
+
+        if ($request->input('isCache') != "N") {
+            $balance->whereBetween("tgl_create_cr", [$sdate, $edate]);
+        }
+
         $balance->orderBy('tgl_so', 'asc');
         $balance->orderBy('no_so', 'asc');
         $data = [
