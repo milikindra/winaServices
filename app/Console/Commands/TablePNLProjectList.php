@@ -41,7 +41,7 @@ class TablePNLProjectList extends Command
      */
     public function handle()
     {
-        $sdate = date('Y-m-01', strtotime("-3 month"));
+        $sdate = date('Y-m-d', strtotime("-365 days"));
         $edate = date('Y-m-d');
         DB::select("CALL TF_RL_SO_LIST('','$sdate','$edate', 'N', 'Y','N','R')");
     }
