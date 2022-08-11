@@ -1,20 +1,20 @@
 <?php
 
-namespace App\Models\Master;
+namespace App\Models\Transaction;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
-class Lokasi extends Model
+class SalesDelivery extends Model
 {
 
-    protected $table = 'maslokasi';
-    protected $primaryKey = 'id_lokasi';
+    protected $table = 'sj_head';
+    protected $primaryKey = 'NO_BUKTI';
     public $incrementing = false;
-    const CREATED_AT = 'tglcreate';
-    const UPDATED_AT = 'tgledit';
+    const CREATED_AT = NULL;
+    const UPDATED_AT = NULL;
 
     public function getTableColumns()
     {
@@ -28,7 +28,7 @@ class Lokasi extends Model
 
     public static function getAll()
     {
-        $model = self::select('*')->orderby('isdefault', 'DESC')->get();
+        $model = self::get();
         return $model;
     }
 }

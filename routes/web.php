@@ -122,6 +122,9 @@ $router->group(['namespace' => 'Transaction'], function () use ($router) {
     // SalesInvoice
     $router->post('siGetEfaktur', ['uses' => 'SalesInvoiceController@siGetEfaktur', 'as' => 'siGetEfaktur']);
     $router->post('salesInvoice/getList', ['uses' =>  'SalesInvoiceController@getList', 'as' => 'salesInvoice/getList']);
+    $router->post('salesInvoice/dataDo', ['uses' =>  'SalesInvoiceController@dataDo', 'as' => 'salesInvoice/dataDo']);
+    $router->post('salesInvoice/getDo', ['uses' =>  'SalesInvoiceController@getDo', 'as' => 'salesInvoice/getDo']);
+    $router->post('salesInvoice/dataSoDp', ['uses' =>  'SalesInvoiceController@dataSoDp', 'as' => 'salesInvoice/dataSoDp']);
 });
 
 $router->group(['namespace' => 'Report'], function () use ($router) {

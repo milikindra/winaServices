@@ -22,9 +22,12 @@ class InventoryController extends Controller
         $void = $request->input('void');
         $kategori = $request->input('kategori');
         $subkategori = $request->input('subkategori');
+        $um = $request->input('um');
 
         $inventory = Inventory::getPopulateInventory();
-        $inventory->where('no_stock', 'NOT LIKE', '**%');
+        if ($um != "Y") {
+            $inventory->where('no_stock', 'NOT LIKE', '**%');
+        }
         $inventory->where('no_stock', '<>', '0');
 
         if ($void == '1') {

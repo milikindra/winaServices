@@ -103,4 +103,16 @@ class SalesInvoice extends Model
         $model->leftJoin('jual_det', 'jual_head.NO_BUKTI', 'jual_det.NO_BUKTI');
         return $model;
     }
+
+    public static function geDataDo()
+    {
+        $model = self::select(
+            'sj_head.*',
+            DB::RAW('IFNULL(jual_head.total_rp,0) as bill')
+        );
+        $model->rightJoin('kontrak_head', 'jual_head.no_so', 'kontrak_head.NO_BUKTI');
+        $model->leftJoin('sj_head', 'kontrak_head.NO_BUKTI', 'sj_head.no_So');
+        $model->whereRaw('kontrak_head.total_rp <> IFNULL(jual_head.total_rp,0)');
+        return $model;
+    }
 }
