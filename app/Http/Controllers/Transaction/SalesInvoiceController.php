@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
 use App\Tree\ModuleNode;
+use App\Models\Master\Inventory;
 use App\Models\Transaction\SalesOrder;
 use App\Models\Transaction\SalesOrderDetailUm;
 use App\Models\Transaction\SalesDelivery;
@@ -199,21 +200,26 @@ class SalesInvoiceController extends Controller
         $soDp->orderBy('urut');
         $count_soDp = $soDp->count();
         if ($count_soDp > 0) {
+            // cek so_um
             $si = SalesInvoice::select('*');
             $si->where('isUM', "Y");
             $si->where('no_so_um', $so_id);
             $count_si = $si->count();
+            // cek sudah pernah keluar invoice
             if ($count_si > 0) {
+                // sudah pernah bikin
                 $getSi = $si->get();
                 $cekFinal = $si->where('isSI_UM_FINAL', 'Y')->count();
-                if ($cekFinal < 1) {
-                    // data tidak ditemukan karena sudah final
-                    $filteredData = $soDp->get();
-                    $data = [
-                        'result' => true,
-                        'soDp' => $filteredData
-                    ];
+                if ($cekFinal > 0) {
+                    // final ya ga keluar lagi
                 }
+            } else {
+                // belum pernah bikin
+                $filteredData = $soDp->get();
+                $data = [
+                    'result' => true,
+                    'soDp' => $filteredData
+                ];
             }
         }
         return response()->json($data);
@@ -235,6 +241,21 @@ class SalesInvoiceController extends Controller
             'do' => $do->get()
         ];
 
+        return response()->json($data);
+    }
+
+    public function getSoDp(Request $request)
+    {
+        $model = new SalesDelivery();
+        $fields = $model->getTableColumns();
+        $dp = Inventory::select('NO_STOCK', 'kontrak.*');
+        $dp->leftJoin(DB::RAW("( SELECT kontrak_det_um.*, kontrak_head.curr FROM kontrak_head LEFT JOIN kontrak_det_um ON kontrak_head.NO_BUKTI = kontrak_det_um.NO_BUKTI WHERE kontrak_head.NO_BUKTI = 'vintras1' ) AS kontrak"), 'stock.no_stock', 'LIKE', DB::RAW("concat('%',kontrak.curr)"));
+        $dp->where('kontrak.NO_BUKTI', $request->input('so_id'));
+        $dp->take(1);
+        $data = [
+            'result' => true,
+            'dp' => $dp->get()
+        ];
         return response()->json($data);
     }
 }
