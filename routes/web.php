@@ -102,6 +102,9 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
 
     // area
     $router->post('areaGetRawData', ['uses' => 'AreaController@areaGetRawData', 'as' => 'areaGetRawData']);
+
+    // efaktur
+    $router->post('efaktur/getByDate', ['uses' => 'EfakturController@getByDate', 'as' => 'efaktur/getByDate']);
 });
 
 $router->group(['namespace' => 'Transaction'], function () use ($router) {
