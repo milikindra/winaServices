@@ -57,6 +57,8 @@ class SalesOrderController extends Controller
             if (!empty($keyword)) {
                 $so->where(function ($query) use ($keyword, $fields) {
                     $query->orWhere('NO_BUKTI', 'LIKE', "%$keyword%");
+                    $query->orWhere('NM_CUST', 'LIKE', "%$keyword%");
+                    $query->orWhere('ID_SALES', 'LIKE', "%$keyword%");
                 });
             }
         }
