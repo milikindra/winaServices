@@ -58,7 +58,7 @@ class SalesOrderController extends Controller
                 $so->where(function ($query) use ($keyword, $fields) {
                     $query->orWhere('NO_BUKTI', 'LIKE', "%$keyword%");
                     $query->orWhere('NM_CUST', 'LIKE', "%$keyword%");
-                    $query->orWhere('ID_SALES', 'LIKE', "%$keyword%");
+                    $query->orWhere('PO_CUST', 'LIKE', "%$keyword%");
                 });
             }
         }
