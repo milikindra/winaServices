@@ -106,13 +106,49 @@ class SalesInvoice extends Model
 
     public static function geDataDo()
     {
-        $model = self::select(
-            'sj_head.*',
-            DB::RAW('IFNULL(jual_head.total_rp,0) as bill')
-        );
+        $model = self::select('sj_head.*');
         $model->rightJoin('kontrak_head', 'jual_head.no_so', 'kontrak_head.NO_BUKTI');
+        $model->leftJoin('jual_det', 'jual_head.NO_BUKTI', 'jual_det.NO_BUKTI');
         $model->leftJoin('sj_head', 'kontrak_head.NO_BUKTI', 'sj_head.no_So');
-        $model->whereRaw('kontrak_head.total_rp <> IFNULL(jual_head.total_rp,0)');
+        $model->whereRaw('sj_head.NO_BUKTI <> jual_det.no_sj');
+
+        return $model;
+    }
+
+    public static function addData($request)
+    {
+        $model = new self();
+        $model->NO_BUKTI = $request['NO_BUKTI'];
+        $model->TGL_BUKTI = $request['TGL_BUKTI'];
+        $model->ID_CUST = $request['ID_CUST'];
+        $model->NM_CUST = $request['NM_CUST'];
+        $model->TEMPO = $request['TEMPO'];
+        $model->ID_SALES = $request['ID_SALES'];
+        $model->NM_SALES = $request['NM_SALES'];
+        $model->PPN = $request['PPN'];
+        $model->KETERANGAN = $request['KETERANGAN'];
+        $model->CREATOR = $request['CREATOR'];
+        $model->EDITOR = $request['EDITOR'];
+        $model->rate = $request['rate'];
+        $model->curr = $request['curr'];
+        $model->no_so = $request['no_so'];
+        $model->alamatkirim = $request['alamatkirim'];
+        $model->pay_term = $request['pay_term'];
+        $model->isUM = $request['isUM'];
+        $model->no_so_um = $request['no_so_um'];
+        $model->uangmuka = $request['uangmuka'];
+        $model->totdetail = $request['totdetail'];
+        $model->uangmuka_ppn = $request['uangmuka_ppn'];
+        $model->ppntotdetail = $request['ppntotdetail'];
+        $model->no_pajak = $request['no_pajak'];
+        $model->no_rek = $request['no_rek'];
+        $model->isWapu = $request['isWapu'];
+        $model->no_tt = $request['no_tt'];
+        $model->tgl_tt = $request['tgl_tt'];
+        $model->penerima_tt = $request['penerima_tt'];
+        $model->isSI_UM_FINAL = $request['isSI_UM_FINAL'];
+
+        $model->save();
         return $model;
     }
 }
