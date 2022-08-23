@@ -130,6 +130,7 @@ $router->group(['namespace' => 'Transaction'], function () use ($router) {
     $router->post('salesInvoice/dataSoDp', ['uses' =>  'SalesInvoiceController@dataSoDp', 'as' => 'salesInvoice/dataSoDp']);
     $router->post('salesInvoice/getSoDp', ['uses' =>  'SalesInvoiceController@getSoDp', 'as' => 'salesInvoice/getSoDp']);
     $router->post('salesInvoiceAddSave', ['uses' =>  'SalesInvoiceController@salesInvoiceAddSave', 'as' => 'salesInvoiceAddSave']);
+    $router->post('salesInvoiceDetail', ['uses' => 'SalesInvoiceController@salesInvoiceDetail', 'as' => 'salesInvoiceDetail']);
 });
 
 $router->group(['namespace' => 'Report'], function () use ($router) {

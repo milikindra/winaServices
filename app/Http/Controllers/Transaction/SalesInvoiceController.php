@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Transaction;
 
 use App\Http\Controllers\Controller;
-use App\Models\Master\EfakturDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +15,12 @@ use App\Models\Transaction\SalesDelivery;
 use App\Models\Transaction\SalesDeliveryDetail;
 use App\Models\Transaction\SalesInvoice;
 use App\Models\Transaction\SalesInvoiceDetail;
+use App\Models\Master\EfakturDetail;
+use App\Models\Master\FilePath;
+use App\Models\Transaction\SalesOrderDetail;
+use App\Models\Master\Company;
+use App\Models\Master\CompanyBankAccount;
+use App\Models\Transaction\SalesInvoiceDetailUm;
 
 class SalesInvoiceController extends Controller
 {
@@ -332,17 +337,41 @@ class SalesInvoiceController extends Controller
                 $model = SalesInvoiceDetail::addData($detail);
             }
             $masterNoPajak = str_replace("-", ".", $request->head['no_pajakE']);
-
             $model = EfakturDetail::where('nomor', $masterNoPajak)
                 ->update([
                     'no_faktur' =>  $NO_BUKTI,
                 ]);
+            if ($request['head']['isUM'] != "Y") {
+                $getTax = salesInvoiceDetail::select('*')
+                    ->where('NO_BUKTI', $NO_BUKTI)
+                    ->orderby('URUT', 'DESC')
+                    ->take(1)
+                    ->get();
+                $getDp = SalesOrderDetailUm::select('*')->where('NO_BUKTI', $request['head']['no_so'])->get();
+                $totalUm = $request['head']['uangmuka'];
+                $umSO = 0;
+                foreach ($getDp as $dp) {
+                    $umSO += $dp->nilai;
+                }
+                $i = 1;
+                foreach ($getDp as $dp) {
+                    $postDp = [];
+                    $postDp['NO_BUKTI'] =  $NO_BUKTI;
+                    $postDp['keterangan'] =  $dp->keterangan;
+                    $postDp['nilai'] =   $dp->nilai / $umSO * $totalUm;
+                    $postDp['nourut'] =  $i;
+                    $postDp['TAX'] = $getTax[0]->tax;
+                    $model = SalesInvoiceDetailUm::addData($postDp);
+                    $i++;
+                }
+            }
             DB::commit();
             $message = 'Succesfully save data.';
             $data = [
                 "result" => true,
                 'message' => $message,
-                "data" => $model
+                "data" => $model,
+                "id" => $NO_BUKTI
             ];
 
             return $data;
@@ -357,5 +386,46 @@ class SalesInvoiceController extends Controller
             Log::debug($e->getMessage() . ' in ' . $e->getFile() . ' line ' . $e->getLine());
             return $data;
         }
+    }
+
+    public function salesInvoiceDetail(Request $request)
+    {
+        $company = Company::select('*')->Where('remark', 'finance')->get();
+        $company_bank = CompanyBankAccount::select('*')->get();
+        $head = SalesInvoice::select('*')->Where('NO_BUKTI', $request->NO_BUKTI)->get();
+        $um = $head[0]->isUM;
+        if ($um == "Y") {
+            $detail = SalesOrder::leftJoin('kontrak_det', 'kontrak_head.NO_BUKTI', 'kontrak_det.NO_BUKTI')
+                ->where('kontrak_head.NO_BUKTI', $head[0]->no_so_um)->get();
+            $do = "-";
+            // } else {
+        }
+
+        //     $head = salesOrder::leftJoin('mascustomer', 'kontrak_head.ID_CUST', 'mascustomer.ID_CUST')
+        //         ->where('kontrak_head.NO_BUKTI', $request->NO_BUKTI)
+        //         ->select('kontrak_head.*', 'mascustomer.ALAMAT1', 'mascustomer.ALAMAT2', 'mascustomer.KOTA', 'mascustomer.PROPINSI', 'mascustomer.al_npwp')
+        //         ->get();
+        //     $detail = salesInvoiceDetail::leftJoin('stock', 'stock.no_stock', 'kontrak_det.NO_STOCK')
+        //         ->where('kontrak_det.NO_BUKTI', $request->NO_BUKTI)
+        //         ->select('kontrak_det.*', 'stock.merk')
+        //         ->get();
+        // $um = salesInvoiceDetailUm::where('kontrak_det_um.NO_BUKTI', $request->NO_BUKTI)->select('*')->get();
+        $attach = FilePath::where('name', $request->NO_BUKTI)->where('module', 'SI')->select('*')->get();
+
+        $mergeData = [
+            "company" => $company,
+            "company_bank" => $company_bank,
+            "head" => $head,
+            "detail" => $detail,
+            "do" => $do,
+            "attach" => $attach
+        ];
+        // log::debug($head);
+        // log::debug($detail);
+        $data = [
+            "result" => true,
+            'si' => $mergeData,
+        ];
+        return $data;
     }
 }
