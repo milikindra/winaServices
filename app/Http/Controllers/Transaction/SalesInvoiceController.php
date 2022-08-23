@@ -342,9 +342,10 @@ class SalesInvoiceController extends Controller
                     'no_faktur' =>  $NO_BUKTI,
                 ]);
             if ($request['head']['isUM'] != "Y") {
-                $getTax = salesInvoiceDetail::select('*')
-                    ->where('NO_BUKTI', $NO_BUKTI)
-                    ->orderby('URUT', 'DESC')
+                $getTax = salesInvoice::select('*')
+                    ->where('no_so_um', $request->head['no_so'])
+                    ->where('isUM', 'Y')
+                    ->orderby('TGLCREATE', 'DESC')
                     ->take(1)
                     ->get();
                 $getDp = SalesOrderDetailUm::select('*')->where('NO_BUKTI', $request['head']['no_so'])->get();
@@ -365,7 +366,20 @@ class SalesInvoiceController extends Controller
                     $i++;
                 }
             }
+            $edate = date('Y-m-d');
+            for ($i = 0; $i < count($request->attach); $i++) {
+                $val =  "SI_" . date('ymd') . "-" . $inc . "-" . ($i + 1) . "." . $request->attach[$i]['extension'];
+                $attach = [];
+                $attach = [
+                    'module' => 'SI',
+                    'name' => "SI_" . date('ymd') . "-" . $inc,
+                    'value' => $val,
+                    'path' => 'document/SI/' . date_format(date_create($request->head['TGL_BUKTI']), 'Y') . '/' . $val
+                ];
+                $model = FilePath::addData($attach);
+            }
             DB::commit();
+            DB::select("CALL TF_BB_SI('$NO_BUKTI', '2018-01-01', '$edate', '%','N')");
             $message = 'Succesfully save data.';
             $data = [
                 "result" => true,
@@ -373,11 +387,10 @@ class SalesInvoiceController extends Controller
                 "data" => $model,
                 "id" => $NO_BUKTI
             ];
-
             return $data;
         } catch (\Exception $e) {
             DB::rollback();
-            $message = 'Terjadi Error Server.';
+            $message = 'Server Error.';
             $data = [
                 "result" => false,
                 'message' => $message
@@ -398,7 +411,6 @@ class SalesInvoiceController extends Controller
             $detail = SalesOrder::leftJoin('kontrak_det', 'kontrak_head.NO_BUKTI', 'kontrak_det.NO_BUKTI')
                 ->where('kontrak_head.NO_BUKTI', $head[0]->no_so_um)->get();
             $do = "-";
-            // } else {
         }
 
         //     $head = salesOrder::leftJoin('mascustomer', 'kontrak_head.ID_CUST', 'mascustomer.ID_CUST')
