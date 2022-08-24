@@ -188,7 +188,6 @@ class SalesOrderController extends Controller
             "um" => $um,
             "attach" => $attach
         ];
-        // log::debug($mergeData);
         $data = [
             "result" => true,
             'so' => $mergeData,

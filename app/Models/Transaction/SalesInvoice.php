@@ -11,7 +11,8 @@ class SalesInvoice extends Model
 {
 
     protected $table = 'jual_head';
-    protected $primaryKey = 'NO_BUKTI';
+    // protected $primaryKey = 'NO_BUKTI';
+    protected $primaryKey = null;
     public $incrementing = false;
     const CREATED_AT = 'TGLCREATE';
     const UPDATED_AT = 'TGLEDIT';
@@ -41,6 +42,7 @@ class SalesInvoice extends Model
     public static function getPopulateSalesInvoice()
     {
         $model = self::select(
+            'jual_head.NO_BUKTI',
             'jual_head.no_bukti2',
             'jual_head.tag',
             'jual_head.TGL_BUKTI',
@@ -70,6 +72,7 @@ class SalesInvoice extends Model
     public static function getPopulateSalesInvoiceDetail()
     {
         $model = self::select(
+            'jual_head.NO_BUKTI',
             'jual_head.no_bukti2',
             'jual_head.tag',
             'jual_head.TGL_BUKTI',
@@ -137,8 +140,8 @@ class SalesInvoice extends Model
         $model->isUM = $request['isUM'];
         $model->no_so_um = $request['no_so_um'];
         $model->uangmuka = $request['uangmuka'];
-        $model->totdetail = $request['totdetail'];
         $model->uangmuka_ppn = $request['uangmuka_ppn'];
+        $model->totdetail = $request['totdetail'];
         $model->ppntotdetail = $request['ppntotdetail'];
         $model->no_pajak = $request['no_pajak'];
         $model->no_rek = $request['no_rek'];
@@ -147,7 +150,41 @@ class SalesInvoice extends Model
         $model->tgl_tt = $request['tgl_tt'];
         $model->penerima_tt = $request['penerima_tt'];
         $model->isSI_UM_FINAL = $request['isSI_UM_FINAL'];
+        $model->save();
+        return $model;
+    }
 
+    public static function updateData($request, $where)
+    {
+        $model = self::find($where);
+        $model->NO_BUKT = $request['NO_BUKTI'];
+        $model->TGL_BUKTI = $request['TGL_BUKTI'];
+        $model->ID_CUST = $request['ID_CUST'];
+        $model->NM_CUST = $request['NM_CUST'];
+        $model->TEMPO = $request['TEMPO'];
+        $model->ID_SALES = $request['ID_SALES'];
+        $model->NM_SALES = $request['NM_SALES'];
+        $model->PPN = $request['PPN'];
+        $model->KETERANGAN = $request['KETERANGAN'];
+        $model->EDITOR = $request['EDITOR'];
+        $model->rate = $request['rate'];
+        $model->curr = $request['curr'];
+        $model->no_so = $request['no_so'];
+        $model->alamatkirim = $request['alamatkirim'];
+        $model->pay_term = $request['pay_term'];
+        $model->isUM = $request['isUM'];
+        $model->no_so_um = $request['no_so_um'];
+        $model->uangmuka = $request['uangmuka'];
+        $model->uangmuka_ppn = $request['uangmuka_ppn'];
+        $model->totdetail = $request['totdetail'];
+        $model->ppntotdetail = $request['ppntotdetail'];
+        $model->no_pajak = $request['no_pajak'];
+        $model->no_rek = $request['no_rek'];
+        $model->isWapu = $request['isWapu'];
+        $model->no_tt = $request['no_tt'];
+        $model->tgl_tt = $request['tgl_tt'];
+        $model->penerima_tt = $request['penerima_tt'];
+        $model->isSI_UM_FINAL = $request['isSI_UM_FINAL'];
         $model->save();
         return $model;
     }

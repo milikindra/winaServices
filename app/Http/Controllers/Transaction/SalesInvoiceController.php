@@ -15,12 +15,12 @@ use App\Models\Transaction\SalesDelivery;
 use App\Models\Transaction\SalesDeliveryDetail;
 use App\Models\Transaction\SalesInvoice;
 use App\Models\Transaction\SalesInvoiceDetail;
+use App\Models\Transaction\SalesInvoiceDetailUm;
 use App\Models\Master\EfakturDetail;
 use App\Models\Master\FilePath;
 use App\Models\Transaction\SalesOrderDetail;
 use App\Models\Master\Company;
 use App\Models\Master\CompanyBankAccount;
-use App\Models\Transaction\SalesInvoiceDetailUm;
 
 class SalesInvoiceController extends Controller
 {
@@ -301,7 +301,7 @@ class SalesInvoiceController extends Controller
     {
         DB::beginTransaction();
         try {
-            $dates =  "SI/" . date('ymd') . "%";
+            $dates =  "SI/" .  date_format(date_create($request['head']['TGL_BUKTI']), 'ymd') . "%";
             $si = SalesInvoice::select('*')
                 ->where('NO_BUKTI', 'LIKE', $dates)
                 ->orderby('NO_BUKTI', 'DESC')
@@ -311,7 +311,7 @@ class SalesInvoiceController extends Controller
             if (count($si) > 0) {
                 $inc = sprintf("%03d", substr($si[0]->NO_BUKTI, 10) + 1);
             }
-            $NO_BUKTI = "SI/" . date('ymd') . "-" . $inc;
+            $NO_BUKTI = "SI/" .  date_format(date_create($request['head']['TGL_BUKTI']), 'ymd') . "-" . $inc;
             $no_pajak = $request->head['no_pajakF'] . "" . $request->head['no_pajakE'];
             $request['head'] += ['NO_BUKTI' => $NO_BUKTI, 'no_pajak' => $no_pajak];
             $model = SalesInvoice::addData($request->head);
@@ -342,10 +342,11 @@ class SalesInvoiceController extends Controller
                     'no_faktur' =>  $NO_BUKTI,
                 ]);
             if ($request['head']['isUM'] != "Y") {
-                $getTax = salesInvoice::select('*')
-                    ->where('no_so_um', $request->head['no_so'])
-                    ->where('isUM', 'Y')
-                    ->orderby('TGLCREATE', 'DESC')
+                $getTax = salesInvoice::select('jual_det.tax')
+                    ->leftJoin('jual_det', 'jual_det.No_BUKTI', 'jual_head.NO_BUKTI')
+                    ->where('jual_head.no_so_um', $request->head['no_so'])
+                    ->where('jual_head.isUM', 'Y')
+                    ->orderby('jual_head.TGLCREATE', 'DESC')
                     ->take(1)
                     ->get();
                 $getDp = SalesOrderDetailUm::select('*')->where('NO_BUKTI', $request['head']['no_so'])->get();
@@ -366,19 +367,19 @@ class SalesInvoiceController extends Controller
                     $i++;
                 }
             }
-            $edate = date('Y-m-d');
             for ($i = 0; $i < count($request->attach); $i++) {
-                $val =  "SI_" . date('ymd') . "-" . $inc . "-" . ($i + 1) . "." . $request->attach[$i]['extension'];
+                $val =  "SI_" . date_format(date_create($request['head']['TGL_BUKTI']), 'ymd')  . "-" . $inc . "-" . ($i + 1) . "." . $request->attach[$i]['extension'];
                 $attach = [];
                 $attach = [
                     'module' => 'SI',
-                    'name' => "SI_" . date('ymd') . "-" . $inc,
+                    'name' => $NO_BUKTI,
                     'value' => $val,
                     'path' => 'document/SI/' . date_format(date_create($request->head['TGL_BUKTI']), 'Y') . '/' . $val
                 ];
                 $model = FilePath::addData($attach);
             }
             DB::commit();
+            $edate = date('Y-m-d');
             DB::select("CALL TF_BB_SI('$NO_BUKTI', '2018-01-01', '$edate', '%','N')");
             $message = 'Succesfully save data.';
             $data = [
@@ -411,33 +412,178 @@ class SalesInvoiceController extends Controller
             $detail = SalesOrder::leftJoin('kontrak_det', 'kontrak_head.NO_BUKTI', 'kontrak_det.NO_BUKTI')
                 ->where('kontrak_head.NO_BUKTI', $head[0]->no_so_um)->get();
             $do = "-";
+            $so = "-";
+        } else {
+            $detail = SalesInvoiceDetail::leftJoin('stock', 'stock.no_stock', 'jual_det.NO_STOCK')
+                ->where('jual_det.NO_BUKTI', $request->NO_BUKTI)
+                ->select('jual_det.*', 'stock.merk')
+                ->get();
+            $um =  SalesInvoice::where('no_so_um', $head[0]->no_so)
+                ->where('isUM', 'Y')
+                ->select(DB::RAW('sum(totdetail) as total, sum(ppntotdetail) as ppn'))
+                ->get();
+            $do = $detail[0]->no_sj;
+            $so = SalesOrder::where('kontrak_head.NO_BUKTI', $head[0]->no_so)->get();
         }
-
-        //     $head = salesOrder::leftJoin('mascustomer', 'kontrak_head.ID_CUST', 'mascustomer.ID_CUST')
-        //         ->where('kontrak_head.NO_BUKTI', $request->NO_BUKTI)
-        //         ->select('kontrak_head.*', 'mascustomer.ALAMAT1', 'mascustomer.ALAMAT2', 'mascustomer.KOTA', 'mascustomer.PROPINSI', 'mascustomer.al_npwp')
-        //         ->get();
-        //     $detail = salesInvoiceDetail::leftJoin('stock', 'stock.no_stock', 'kontrak_det.NO_STOCK')
-        //         ->where('kontrak_det.NO_BUKTI', $request->NO_BUKTI)
-        //         ->select('kontrak_det.*', 'stock.merk')
-        //         ->get();
-        // $um = salesInvoiceDetailUm::where('kontrak_det_um.NO_BUKTI', $request->NO_BUKTI)->select('*')->get();
         $attach = FilePath::where('name', $request->NO_BUKTI)->where('module', 'SI')->select('*')->get();
-
         $mergeData = [
             "company" => $company,
             "company_bank" => $company_bank,
             "head" => $head,
             "detail" => $detail,
+            "um" => $um,
             "do" => $do,
+            "so" => $so,
             "attach" => $attach
         ];
-        // log::debug($head);
-        // log::debug($detail);
         $data = [
             "result" => true,
             'si' => $mergeData,
         ];
         return $data;
+    }
+
+    public function salesInvoiceUpdate(Request $request)
+    {
+        DB::beginTransaction();
+
+        //     try {
+        $oldSiId = $request['head']['si_id'];
+        $dates =  "SI/" . date_format(date_create($request['head']['TGL_BUKTI']), 'ymd') . "%";
+        if (substr($oldSiId, 0, 9) != substr($dates, 0, 9)) {
+            $si = SalesInvoice::select('*')
+                ->where('NO_BUKTI', 'LIKE', $dates)
+                ->orderby('NO_BUKTI', 'DESC')
+                ->take(1)
+                ->get();
+            $inc = "001";
+            if (count($si) > 0) {
+                $inc = sprintf("%03d", substr($si[0]->NO_BUKTI, 10) + 1);
+            }
+            $NO_BUKTI = "SI/" . date_format(date_create($request['head']['TGL_BUKTI']), 'ymd') . "-" . $inc;
+        } else {
+            $NO_BUKTI = $oldSiId;
+        }
+        $request['head'] += ['NO_BUKTI' => $NO_BUKTI];
+        $no_pajak = $request->head['no_pajakF'] . "" . $request->head['no_pajakE'];
+        $request['head'] += ['no_pajak' => $no_pajak];
+
+        $model = DB::table('jual_head')->where('NO_BUKTI', $oldSiId)
+            ->update([
+                'NO_BUKTI' => $request->head['NO_BUKTI'],
+                'TGL_BUKTI' => $request->head['TGL_BUKTI'],
+                'ID_CUST' => $request->head['ID_CUST'],
+                'NM_CUST' => $request->head['NM_CUST'],
+                'TEMPO' => $request->head['TEMPO'],
+                'ID_SALES' => $request->head['ID_SALES'],
+                'NM_SALES' => $request->head['NM_SALES'],
+                'KETERANGAN' => $request->head['KETERANGAN'],
+                'EDITOR' => $request->head['EDITOR'],
+                'rate' => $request->head['rate'],
+                'curr' => $request->head['curr'],
+                'no_so' => $request->head['no_so'],
+                'alamatkirim' => $request->head['alamatkirim'],
+                'pay_term' => $request->head['pay_term'],
+                'isUM' => $request->head['isUM'],
+                'no_so_um' => $request->head['no_so_um'],
+                'uangmuka' => $request->head['uangmuka'],
+                'totdetail' => $request->head['totdetail'],
+                'uangmuka_ppn' => $request->head['uangmuka_ppn'],
+                'ppntotdetail' => $request->head['ppntotdetail'],
+                'no_rek' => $request->head['no_rek'],
+                'isWapu' => $request->head['isWapu'],
+                'no_tt' => $request->head['no_tt'],
+                'tgl_tt' => $request->head['tgl_tt'],
+                'penerima_tt' => $request->head['penerima_tt'],
+                'isSI_UM_FINAL' => $request->head['isSI_UM_FINAL'],
+                'PPN' => $request->head['PPN'],
+                'no_pajak' => $request->head['no_pajak']
+            ]);
+        SalesInvoiceDetail::where('NO_BUKTI', $NO_BUKTI)->delete();
+        SalesInvoiceDetailUm::where('NO_BUKTI', $NO_BUKTI)->delete();
+
+        for ($i = 0; $i < count($request->detail); $i++) {
+            $detail = [];
+            $detail['NO_BUKTI'] = $NO_BUKTI;
+            $detail['NO_STOCK'] = $request->detail[$i]['NO_STOCK'];
+            $detail['NM_STOCK'] = $request->detail[$i]['NM_STOCK'];
+            $detail['QTY'] = $request->detail[$i]['QTY'];
+            $detail['SAT'] = $request->detail[$i]['SAT'];
+            $detail['HARGA'] = $request->detail[$i]['HARGA'];
+            $detail['DISC1'] = $request->detail[$i]['DISC1'];
+            $detail['DISC2'] = $request->detail[$i]['DISC2'];
+            $detail['DISC3'] = $request->detail[$i]['DISC3'];
+            $detail['DISCRP'] = $request->detail[$i]['DISCRP'];
+            $detail['discrp2'] = $request->detail[$i]['discrp2'];
+            $detail['KET'] = $request->detail[$i]['KET'];
+            $detail['id_lokasi'] = $request->detail[$i]['id_lokasi'];
+            $detail['tax'] = $request->detail[$i]['tax'];
+            $detail['kode_group'] = $request->detail[$i]['kode_group'];
+            $detail['no_sj'] = $request->detail[$i]['no_sj'];
+            SalesInvoiceDetail::addData($detail);
+        }
+        EfakturDetail::where('no_faktur', $NO_BUKTI)->update(['no_faktur' => '']);
+        $masterNoPajak = str_replace("-", ".", $request->head['no_pajakE']);
+        EfakturDetail::where('nomor', $masterNoPajak)->update(['no_faktur' =>  $NO_BUKTI,]);
+        if ($request['head']['isUM'] != "Y") {
+            $getTax = salesInvoice::select('jual_det.tax')
+                ->leftJoin('jual_det', 'jual_det.No_BUKTI', 'jual_head.NO_BUKTI')
+                ->where('jual_head.no_so_um', $request->head['no_so'])
+                ->where('jual_head.isUM', 'Y')
+                ->orderby('jual_head.TGLCREATE', 'DESC')
+                ->take(1)
+                ->get();
+            $getDp = SalesOrderDetailUm::select('*')->where('NO_BUKTI', $request['head']['no_so'])->get();
+            $totalUm = $request['head']['uangmuka'];
+            $umSO = 0;
+            foreach ($getDp as $dp) {
+                $umSO += $dp->nilai;
+            }
+            $i = 1;
+            foreach ($getDp as $dp) {
+                $postDp = [];
+                $postDp['NO_BUKTI'] =  $NO_BUKTI;
+                $postDp['keterangan'] =  $dp->keterangan;
+                $postDp['nilai'] =   $dp->nilai / $umSO * $totalUm;
+                $postDp['nourut'] =  $i;
+                $postDp['TAX'] = $getTax[0]->tax;
+                SalesInvoiceDetailUm::addData($postDp);
+                $i++;
+            }
+        }
+        FilePath::where('name', $NO_BUKTI)->where('module', 'SI')->delete();
+        for ($i = 0; $i < count($request->attach); $i++) {
+            $val =  "SI_" . substr($NO_BUKTI, 3) . "-" . ($i + 1) . "." . $request->attach[$i]['extension'];
+            $attach = [];
+            $attach = [
+                'module' => 'SI',
+                'name' => $NO_BUKTI,
+                'value' => $val,
+                'path' => 'document/SI/' . date_format(date_create($request->head['TGL_BUKTI']), 'Y') . '/' . $val
+            ];
+            FilePath::addData($attach);
+        }
+        DB::commit();
+        $edate = date('Y-m-d');
+        DB::select("CALL TF_BB_SI('$NO_BUKTI', '2018-01-01', '$edate', '%','N')");
+        $message = 'Succesfully save data.';
+        $data = [
+            "result" => true,
+            'message' => $message,
+            "data" => $model,
+            "id" => $NO_BUKTI
+        ];
+        return $data;
+        //     } catch (\Exception $e) {
+        //         DB::rollback();
+        //         $message = 'Server Error.';
+        //         $data = [
+        //             "result" => false,
+        //             'message' => $message
+        //         ];
+        //         Log::debug($request->path() . " | "  . $message .  " | " . print_r($request->input(), TRUE));
+        //         Log::debug($e->getMessage() . ' in ' . $e->getFile() . ' line ' . $e->getLine());
+        //         return $data;
+        //     }
     }
 }
