@@ -13,6 +13,8 @@
 |
 */
 
+
+
 $router->get('/', function () use ($router) {
     return $router->app->version();
 });
@@ -132,6 +134,7 @@ $router->group(['namespace' => 'Transaction'], function () use ($router) {
     $router->post('salesInvoiceAddSave', ['uses' =>  'SalesInvoiceController@salesInvoiceAddSave', 'as' => 'salesInvoiceAddSave']);
     $router->post('salesInvoiceDetail', ['uses' => 'SalesInvoiceController@salesInvoiceDetail', 'as' => 'salesInvoiceDetail']);
     $router->post('salesInvoiceUpdate', ['uses' =>  'SalesInvoiceController@salesInvoiceUpdate', 'as' => 'salesInvoiceUpdate']);
+    $router->post('salesInvoiceDelete', ['uses' =>  'SalesInvoiceController@salesInvoiceDelete', 'as' => 'salesInvoiceDelete']);
 });
 
 $router->group(['namespace' => 'Report'], function () use ($router) {

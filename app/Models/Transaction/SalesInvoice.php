@@ -188,4 +188,10 @@ class SalesInvoice extends Model
         $model->save();
         return $model;
     }
+
+    public static function deleteData($request)
+    {
+        $model = self::where('NO_BUKTI', $request)->delete();
+        return $model;
+    }
 }
