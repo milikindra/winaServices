@@ -407,7 +407,7 @@ class SalesInvoiceController extends Controller
     {
         $company = Company::select('*')->Where('remark', 'finance')->get();
         $company_bank = CompanyBankAccount::select('*')->get();
-        $head = SalesInvoice::select('*')->Where('NO_BUKTI', $request->NO_BUKTI)->get();
+        $head = SalesInvoice::select('*', DB::RAW('cast(TGLCREATE AS char) as create_date'), DB::RAW('cast(TGLEDIT AS char) as edit_date'))->Where('NO_BUKTI', $request->NO_BUKTI)->get();
         $um = $head[0]->isUM;
         if ($um == "Y") {
             if ($request->param == 'd') {
