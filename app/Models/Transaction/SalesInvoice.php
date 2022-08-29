@@ -131,7 +131,7 @@ class SalesInvoice extends Model
         $model->PPN = $request['PPN'];
         $model->KETERANGAN = $request['KETERANGAN'];
         $model->CREATOR = $request['CREATOR'];
-        $model->EDITOR = $request['EDITOR'];
+        // $model->EDITOR = $request['EDITOR'];
         $model->rate = $request['rate'];
         $model->curr = $request['curr'];
         $model->no_so = $request['no_so'];

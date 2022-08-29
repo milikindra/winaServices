@@ -63,7 +63,7 @@ class SalesOrder extends Model
         $model->NM_SALES = $request['NM_SALES'];
         $model->KETERANGAN = $request['KETERANGAN'];
         $model->CREATOR = $request['CREATOR'];
-        $model->EDITOR = $request['EDITOR'];
+        // $model->EDITOR = $request['EDITOR'];
         $model->rate = $request['rate'];
         $model->curr = $request['curr'];
         $model->dept = $request['dept'];
@@ -96,7 +96,7 @@ class SalesOrder extends Model
         $model->ID_SALES = $request['ID_SALES'];
         $model->NM_SALES = $request['NM_SALES'];
         $model->KETERANGAN = $request['KETERANGAN'];
-        $model->CREATOR = $request['CREATOR'];
+        // $model->CREATOR = $request['CREATOR'];
         $model->EDITOR = $request['EDITOR'];
         $model->rate = $request['rate'];
         $model->curr = $request['curr'];
