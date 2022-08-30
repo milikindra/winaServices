@@ -22,6 +22,7 @@ use App\Models\Transaction\SalesOrderDetail;
 use App\Models\Master\Company;
 use App\Models\Master\CompanyBankAccount;
 use App\Models\Master\DateCutOff;
+use App\Models\Transaction\CustomerReceiptDetail;
 
 class SalesInvoiceController extends Controller
 {
@@ -78,7 +79,7 @@ class SalesInvoiceController extends Controller
         if ($kategori == "lunas") {
             $si->whereRaw('jual_head.total_rp = bayar.income');
         } else if ($kategori == "outstanding") {
-            $si->whereRaw('jual_head.total_rp > bayar.income');
+            $si->whereRaw('jual_head.total_rp >  ifnull( bayar.income, 0 ) ');
         }
 
         if ($request->has('search')) {
@@ -715,20 +716,36 @@ class SalesInvoiceController extends Controller
 
     public function salesInvoiceDelete(Request $request)
     {
+        DB::beginTransaction();
         try {
-            $fileLocal = FilePath::where('name', $request->NO_BUKTI)->where('module', 'SI')->get();
-            FilePath::where('name', $request->NO_BUKTI)->where('module', 'SI')->delete();
-            SalesInvoice::deleteData($request->NO_BUKTI);
-            EfakturDetail::where('no_faktur', $request->NO_BUKTI)->update(['no_faktur' => 'CANCEL']);
+            $cekCr = CustomerReceiptDetail::select('*')->where('no_nota', $request->NO_BUKTI)->get();
+            if (count($cekCr) > 0) {
+                $crId = "'" . $cekCr[0]['no_nota'] . "'";
+                for ($i = 1; $i < count($cekCr); $i++) {
+                    $crId .= ",'" . $cekCr[0]['no_nota'] . "'";
+                }
 
-            DB::commit();
-            $message = 'Succesfully delete data.';
-            $data = [
-                "result" => true,
-                'message' => $message,
-                'fileLocal' => $fileLocal
-            ];
-            return $data;
+                $message = 'Cannot Delete Sales Invoice : ' . $request->NO_BUKTI . ". This transaction have Customer Receipt With Id : " . $crId;
+                $data = [
+                    "result" => false,
+                    'message' => $message,
+                ];
+                return $data;
+            } else {
+                $fileLocal = FilePath::where('name', $request->NO_BUKTI)->where('module', 'SI')->get();
+                FilePath::where('name', $request->NO_BUKTI)->where('module', 'SI')->delete();
+                SalesInvoice::deleteData($request->NO_BUKTI);
+                EfakturDetail::where('no_faktur', $request->NO_BUKTI)->update(['no_faktur' => 'CANCEL']);
+
+                DB::commit();
+                $message = 'Succesfully delete data.';
+                $data = [
+                    "result" => true,
+                    'message' => $message,
+                    'fileLocal' => $fileLocal
+                ];
+                return $data;
+            }
         } catch (\Exception $e) {
             DB::rollback();
             $message = 'Something wrong! Cannot delete data.';
