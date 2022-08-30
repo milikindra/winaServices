@@ -141,7 +141,7 @@ class SalesInvoiceController extends Controller
         $so_id = $request->input('so_id');
         $si = SalesInvoice::geDataDo();
 
-        $si->whereRaw(DB::RAW("( sj_head.NO_BUKTI <> jual_det.no_sj AND `kontrak_head`.`NO_BUKTI` =  '" . $so_id . "' ) OR ( `kontrak_head`.`NO_BUKTI` = '" . $so_id . "' AND `jual_det`.`no_sj` IS NULL ) "));
+        $si->whereRaw(DB::RAW("( sj_head.NO_BUKTI <div> jual_det.no_sj AND `kontrak_head`.`NO_BUKTI` =  '" . $so_id . "' ) OR ( `kontrak_head`.`NO_BUKTI` = '" . $so_id . "' AND `jual_det`.`no_sj` IS NULL ) "));
         if ($request->has('search')) {
             $keyword = $request->input('search');
             if (!empty($keyword)) {
@@ -439,6 +439,7 @@ class SalesInvoiceController extends Controller
             $so = SalesOrder::where('kontrak_head.NO_BUKTI', $head[0]->no_so)->get();
         }
         $attach = FilePath::where('name', $request->NO_BUKTI)->where('module', 'SI')->select('*')->get();
+        $getDateLocked = DateCutOff::select('*')->get();
         $mergeData = [
             "company" => $company,
             "company_bank" => $company_bank,
@@ -447,7 +448,8 @@ class SalesInvoiceController extends Controller
             "um" => $um,
             "do" => $do,
             "so" => $so,
-            "attach" => $attach
+            "attach" => $attach,
+            "lock_inventory" => $getDateLocked[0]->tanggal,
         ];
         $data = [
             "result" => true,
@@ -480,9 +482,20 @@ class SalesInvoiceController extends Controller
         } else {
             $NO_BUKTI = $oldSiId;
         }
-
+        $getDateLocked = DateCutOff::select('*')->get();
         DB::beginTransaction();
         try {
+            // if ($getDateLocked[0]->tanggal > $request->head['TGL_BUKTI']) {
+            //     $result = false;
+            //     $message = ['lock' => 'inventory', 'dates' => $getDateLocked[0]->tanggal];
+            //     $NO_BUKTI = $oldHead[0]->NO_BUKTI;
+            //     $data = [
+            //         "result" => $result,
+            //         'message' => $message,
+            //         "id" => $NO_BUKTI
+            //     ];
+            // } else {
+            // }
             $request['head'] += ['NO_BUKTI' => $NO_BUKTI];
             $no_pajak = $request->head['no_pajakF'] . "" . $request->head['no_pajakE'];
             $request['head'] += ['no_pajak' => $no_pajak];
@@ -497,7 +510,7 @@ class SalesInvoiceController extends Controller
                     'ID_SALES' => $request->head['ID_SALES'],
                     'NM_SALES' => $request->head['NM_SALES'],
                     'KETERANGAN' => $request->head['KETERANGAN'],
-                    'EDITOR' => "WINA : " . $request->head['EDITOR'],
+                    'EDITOR' => $request->head['EDITOR'],
                     'rate' => $request->head['rate'],
                     'curr' => $request->head['curr'],
                     'no_so' => $request->head['no_so'],
@@ -572,8 +585,6 @@ class SalesInvoiceController extends Controller
                 }
             }
 
-
-            $getDateLocked = DateCutOff::select('*')->get();
             if ($getDateLocked[0]->tanggal2 > $request->head['TGL_BUKTI']) {
                 $model = DB::select("CALL TF_BB_SI('$NO_BUKTI', '2018-01-01', '$edate', '%','N')");
                 $newBs = DB::select("CALL TF_BB_SI('$NO_BUKTI', '2018-01-01', '$edate', '%','Y')");
@@ -669,7 +680,7 @@ class SalesInvoiceController extends Controller
                         }
                     }
                     $result = false;
-                    $message = 'Unable to update data. Change can create different values in the general ledger';
+                    $message = ['lock' => 'finance', 'old' => $oldBs, 'new' => $newBs, 'dates' => $getDateLocked[0]->tanggal2];
                     $NO_BUKTI = $oldHead[0]->NO_BUKTI;
                 } else {
                     $message = 'Succesfully update data.';
@@ -692,14 +703,12 @@ class SalesInvoiceController extends Controller
                 ];
                 $model = FilePath::addData($attach);
             }
-
             $data = [
                 "result" => $result,
                 'message' => $message,
                 "data" => $model,
                 "id" => $NO_BUKTI
             ];
-
             return $data;
         } catch (\Exception $e) {
             DB::rollback();
