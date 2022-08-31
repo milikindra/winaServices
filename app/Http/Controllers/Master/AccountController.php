@@ -177,13 +177,12 @@ class AccountController extends Controller
         $trx_id = $request->input('trx_id');
         $coaTrx = GlCard::whereBetween('tgl_bukti', [$sdate, $edate]);
         if ($trx_id != 'all') {
-            $trx_id = str_replace(":", "/",  $request->input('trx_id'));
+            $trx_id = $request->input('trx_id');
             $coaTrx->where('no_bukti', $trx_id);
         }
         if ($trx_type != 'all') {
             $coaTrx->where('trx', $trx_type);
         }
-
 
         if ($request->has('search')) {
             $keyword = $request->input('search');
@@ -217,7 +216,8 @@ class AccountController extends Controller
         //     }
         // } else {
         // }
-        $coaTrx->orderBy('no_bukti', 'asc');
+        // $coaTrx->orderBy('no_bukti', 'asc');
+        $coaTrx->orderBy('idxurut', 'asc');
 
         if ($request->has('current_page')) {
             $page = $request->input('current_page');

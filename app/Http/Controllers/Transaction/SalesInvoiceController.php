@@ -110,7 +110,7 @@ class SalesInvoiceController extends Controller
                 $si->orderBy($column, $direction);
             }
         } else {
-            // $si->orderBy('jual_head.no_bukti2', 'asc');
+            $si->orderBy('jual_head.TGL_BUKTI', 'DESC');
         }
         if ($request->has('current_page')) {
             $page = $request->input('current_page');
@@ -141,7 +141,7 @@ class SalesInvoiceController extends Controller
         $so_id = $request->input('so_id');
         $si = SalesInvoice::geDataDo();
 
-        $si->whereRaw(DB::RAW("( sj_head.NO_BUKTI <div> jual_det.no_sj AND `kontrak_head`.`NO_BUKTI` =  '" . $so_id . "' ) OR ( `kontrak_head`.`NO_BUKTI` = '" . $so_id . "' AND `jual_det`.`no_sj` IS NULL ) "));
+        $si->whereRaw(DB::RAW("( sj_head.NO_BUKTI <> jual_det.no_sj AND `kontrak_head`.`NO_BUKTI` =  '" . $so_id . "' ) OR ( `kontrak_head`.`NO_BUKTI` = '" . $so_id . "' AND `jual_det`.`no_sj` IS NULL ) "));
         if ($request->has('search')) {
             $keyword = $request->input('search');
             if (!empty($keyword)) {
@@ -728,10 +728,11 @@ class SalesInvoiceController extends Controller
         DB::beginTransaction();
         try {
             $cekCr = CustomerReceiptDetail::select('*')->where('no_nota', $request->NO_BUKTI)->get();
+            Log::debug($cekCr);
             if (count($cekCr) > 0) {
-                $crId = "'" . $cekCr[0]['no_nota'] . "'";
+                $crId = "'" . $cekCr[0]['no_bukti'] . "'";
                 for ($i = 1; $i < count($cekCr); $i++) {
-                    $crId .= ",'" . $cekCr[0]['no_nota'] . "'";
+                    $crId .= ",'" . $cekCr[0]['no_bukti'] . "'";
                 }
 
                 $message = 'Cannot Delete Sales Invoice : ' . $request->NO_BUKTI . ". This transaction have Customer Receipt With Id : " . $crId;

@@ -20,6 +20,8 @@ $router->get('/', function () use ($router) {
 });
 
 $router->post('login', 'Login\LoginController@login');
+$router->post('efakturGenerator', 'EfakturGenerator@generateCsv');
+
 // $router->post('forgetPassword', 'Login\LoginController@forgetPassword');
 // $router->post('newPassword', 'Login\LoginController@newPassword');
 // $router->post('newPasswordSave', 'Login\LoginController@newPasswordSave');
