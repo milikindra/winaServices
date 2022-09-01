@@ -97,7 +97,6 @@ class SalesInvoiceController extends Controller
                     $query->orWhere('no_tt', 'LIKE', "%$keyword%");
                     $query->orWhere('tgl_tt', 'LIKE', "%$keyword%");
                     $query->orWhere('penerima_tt', 'LIKE', "%$keyword%");
-                    $query->orWhere('due_date', 'LIKE', "%$keyword%");
                 });
             }
         }
