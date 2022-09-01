@@ -87,6 +87,17 @@ class SalesInvoiceController extends Controller
             if (!empty($keyword)) {
                 $si->where(function ($query) use ($keyword, $fields) {
                     $query->orWhere('no_bukti2', 'LIKE', "%$keyword%");
+                    $query->orWhere('tag', 'LIKE', "%$keyword%");
+                    $query->orWhere('TGL_BUKTI', 'LIKE', "%$keyword%");
+                    $query->orWhere('NM_CUST', 'LIKE', "%$keyword%");
+                    $query->orWhere('NM_SALES', 'LIKE', "%$keyword%");
+                    $query->orWhere('TEMPO', 'LIKE', "%$keyword%");
+                    $query->orWhere('no_so', 'LIKE', "%$keyword%");
+                    $query->orWhere('no_pajak', 'LIKE', "%$keyword%");
+                    $query->orWhere('no_tt', 'LIKE', "%$keyword%");
+                    $query->orWhere('tgl_tt', 'LIKE', "%$keyword%");
+                    $query->orWhere('penerima_tt', 'LIKE', "%$keyword%");
+                    $query->orWhere('due_date', 'LIKE', "%$keyword%");
                 });
             }
         }
