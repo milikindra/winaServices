@@ -444,7 +444,7 @@ class SalesOrderController extends Controller
                     $query->orWhere('wina_v_salesorder.Dept', 'LIKE', "%$keyword%");
                     $query->orWhere('wina_v_salesorder.PO_CUST', 'LIKE', "%$keyword%");
                     $query->orWhere('wina_v_salesorder.no_ref', 'LIKE', "%$keyword%");
-                    $query->orWhere('wina_v_salesorder.jenis', 'LIKE', "%$keyword%");
+                    $query->orWhere('jenis', 'LIKE', "%$keyword%");
                 });
             }
         }
