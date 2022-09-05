@@ -417,34 +417,43 @@ class SalesOrderController extends Controller
     {
         $model = new SalesOrder();
         $fields = $model->getTableColumns();
-        // $so = SalesOrder::select('kontrak_head.*', 'mascurr.rek_ptg', 'mascustomer.isWapu');
-        // $so = SalesOrder::select('kontrak_head.*', 'mascurr.rek_ptg', 'mascustomer.isWapu');
-        // $so->leftJoin('mascurr', 'kontrak_head.curr', 'mascurr.curr');
-        // $so->leftJoin('mascustomer', 'kontrak_head.ID_CUST', 'mascustomer.ID_CUST');
-        $so = SalesOrder::getPopulateSalesOrder();
-        $so->leftJoin('mascurr', 'wina_v_salesorder.curr', 'mascurr.curr');
-        $so->leftJoin('mascustomer', 'wina_v_salesorder.ID_CUST', 'mascustomer.ID_CUST');
+        $so = SalesOrder::select('kontrak_head.*', 'mascurr.rek_ptg', 'mascustomer.isWapu');
+        $so = SalesOrder::select('kontrak_head.*', 'mascurr.rek_ptg', 'mascustomer.isWapu');
+        $so->leftJoin('mascurr', 'kontrak_head.curr', 'mascurr.curr');
+        $so->leftJoin('mascustomer', 'kontrak_head.ID_CUST', 'mascustomer.ID_CUST');
+        // $so = SalesOrder::getPopulateSalesOrder();
+        // $so->leftJoin('mascurr', 'wina_v_salesorder.curr', 'mascurr.curr');
+        // $so->leftJoin('mascustomer', 'wina_v_salesorder.ID_CUST', 'mascustomer.ID_CUST');
 
-        if ($request->input('cat') == "lunas") {
-            $so->where('QTY', '<=', DB::RAW('wina_v_salesorder.SJ_QTY-wina_v_salesorder.RJ_QTY'));
-        } else if ($request->input('cat') == "outstanding") {
-            $so->where('QTY', '>', DB::RAW('wina_v_salesorder.SJ_QTY-wina_v_salesorder.RJ_QTY'));
-        }
+        // if ($request->input('cat') == "lunas") {
+        //     $so->where('QTY', '<=', DB::RAW('wina_v_salesorder.SJ_QTY-wina_v_salesorder.RJ_QTY'));
+        // } else if ($request->input('cat') == "outstanding") {
+        //     $so->where('QTY', '>', DB::RAW('wina_v_salesorder.SJ_QTY-wina_v_salesorder.RJ_QTY'));
+        // }
 
         if ($request->has('search')) {
             $keyword = $request->input('search');
             if (!empty($keyword)) {
                 $so->where(function ($query) use ($keyword, $fields) {
-                    // $query->orWhere('kontrak_head.NO_BUKTI', 'LIKE', "%$keyword%");
-                    $query->orWhere('wina_v_salesorder.NO_BUKTI', 'LIKE', "%$keyword%");
-                    $query->orWhere('wina_v_salesorder.TGL_BUKTI', 'LIKE', "%$keyword%");
-                    $query->orWhere('wina_v_salesorder.ID_CUST', 'LIKE', "%$keyword%");
-                    $query->orWhere('wina_v_salesorder.NM_CUST', 'LIKE', "%$keyword%");
-                    $query->orWhere('wina_v_salesorder.NM_SALES', 'LIKE', "%$keyword%");
-                    $query->orWhere('wina_v_salesorder.Dept', 'LIKE', "%$keyword%");
-                    $query->orWhere('wina_v_salesorder.PO_CUST', 'LIKE', "%$keyword%");
-                    $query->orWhere('wina_v_salesorder.no_ref', 'LIKE', "%$keyword%");
+                    $query->orWhere('NO_BUKTI', 'LIKE', "%$keyword%");
+                    $query->orWhere('TGL_BUKTI', 'LIKE', "%$keyword%");
+                    $query->orWhere('ID_CUST', 'LIKE', "%$keyword%");
+                    $query->orWhere('NM_CUST', 'LIKE', "%$keyword%");
+                    $query->orWhere('NM_SALES', 'LIKE', "%$keyword%");
+                    $query->orWhere('Dept', 'LIKE', "%$keyword%");
+                    $query->orWhere('PO_CUST', 'LIKE', "%$keyword%");
+                    $query->orWhere('no_ref', 'LIKE', "%$keyword%");
                     $query->orWhere('jenis', 'LIKE', "%$keyword%");
+
+                    // $query->orWhere('wina_v_salesorder.NO_BUKTI', 'LIKE', "%$keyword%");
+                    // $query->orWhere('wina_v_salesorder.TGL_BUKTI', 'LIKE', "%$keyword%");
+                    // $query->orWhere('wina_v_salesorder.ID_CUST', 'LIKE', "%$keyword%");
+                    // $query->orWhere('wina_v_salesorder.NM_CUST', 'LIKE', "%$keyword%");
+                    // $query->orWhere('wina_v_salesorder.NM_SALES', 'LIKE', "%$keyword%");
+                    // $query->orWhere('wina_v_salesorder.Dept', 'LIKE', "%$keyword%");
+                    // $query->orWhere('wina_v_salesorder.PO_CUST', 'LIKE', "%$keyword%");
+                    // $query->orWhere('wina_v_salesorder.no_ref', 'LIKE', "%$keyword%");
+                    // $query->orWhere('wina_v_salesorder.jenis', 'LIKE', "%$keyword%");
                 });
             }
         }
@@ -452,7 +461,7 @@ class SalesOrderController extends Controller
         if ($request->input('field') != 'all') {
             $so->where($request->input('field'), $request->input('value'));
         }
-
+        LOg::debug($so->toSql());
         $filteredData = $so->get();
         $totalRows = $so->count();
 
@@ -473,8 +482,8 @@ class SalesOrderController extends Controller
                 $so->orderBy($column, $direction);
             }
         } else {
-            // $so->orderBy('kontrak_head.NO_BUKTI', 'asc');
-            $so->orderBy('wina_v_salesorder.NO_BUKTI', 'asc');
+            $so->orderBy('kontrak_head.NO_BUKTI', 'asc');
+            // $so->orderBy('wina_v_salesorder.NO_BUKTI', 'asc');
         }
         if ($request->has('current_page')) {
             $page = $request->input('current_page');
