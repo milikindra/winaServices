@@ -461,7 +461,6 @@ class SalesOrderController extends Controller
         if ($request->input('field') != 'all') {
             $so->where($request->input('field'), $request->input('value'));
         }
-        LOg::debug($so->toSql());
         $filteredData = $so->get();
         $totalRows = $so->count();
 

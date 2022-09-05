@@ -137,6 +137,7 @@ $router->group(['namespace' => 'Transaction'], function () use ($router) {
     $router->post('salesInvoiceDetail', ['uses' => 'SalesInvoiceController@salesInvoiceDetail', 'as' => 'salesInvoiceDetail']);
     $router->post('salesInvoiceUpdate', ['uses' =>  'SalesInvoiceController@salesInvoiceUpdate', 'as' => 'salesInvoiceUpdate']);
     $router->post('salesInvoiceDelete', ['uses' =>  'SalesInvoiceController@salesInvoiceDelete', 'as' => 'salesInvoiceDelete']);
+    $router->post('salesInvoiceupdateReceipt', ['uses' =>  'SalesInvoiceController@salesInvoiceupdateReceipt', 'as' => 'salesInvoiceupdateReceipt']);
 });
 
 $router->group(['namespace' => 'Report'], function () use ($router) {

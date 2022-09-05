@@ -746,6 +746,37 @@ class SalesInvoiceController extends Controller
         }
     }
 
+    public function salesInvoiceupdateReceipt(request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $model = SalesInvoice::where('NO_BUKTI', $request['head']['si_id'])
+                ->update([
+                    'EDITOR' => $request->head['EDITOR'],
+                    'no_tt' => $request->head['no_tt'],
+                    'tgl_tt' => $request->head['tgl_tt'],
+                    'penerima_tt' => $request->head['penerima_tt'],
+
+                ]);
+            DB::commit();
+            $data = [
+                "result" => true,
+                'message' => "Success",
+            ];
+            return $data;
+        } catch (\Exception $e) {
+            DB::rollback();
+            $message = 'Server Error.';
+            $data = [
+                "result" => false,
+                'message' => $message
+            ];
+            Log::debug($request->path() . " | "  . $message .  " | " . print_r($request->input(), TRUE));
+            Log::debug($e->getMessage() . ' in ' . $e->getFile() . ' line ' . $e->getLine());
+            return $data;
+        }
+    }
+
     public function salesInvoiceDelete(Request $request)
     {
         DB::beginTransaction();
