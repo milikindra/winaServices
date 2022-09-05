@@ -18,7 +18,10 @@ class GlobalParamController extends Controller
         if ($request->category == 'top_management') {
             $model->leftJoin('wina_m_user', 'wina_m_global_param.value', 'wina_m_user.user_id');
             $model->where('wina_m_global_param.category', $request->category);
+        } else if ($request->category != 'all') {
+            $model->where('wina_m_global_param.category', $request->category);
         }
+
         if ($request->id != 'all') {
             $model->where('wina_m_global_param.code', $request->id);
         }
