@@ -213,45 +213,56 @@ class SalesInvoiceController extends Controller
             'result' => false,
             'soDp' => "Data not found"
         ];
+
         $model = new SalesOrderDetailUm();
         $fields = $model->getTableColumns();
         $so_id = $request->input('so_id');
+        $cekDo = salesInvoice::where('no_so', $so_id)->count();
         $soDp = SalesOrderDetailUm::select('*');
         $soDp->where('NO_BUKTI', $so_id);
         $soDp->orderBy('urut');
         $count_soDp = $soDp->count();
-        if ($count_soDp > 0) {
-            // cek so_um
-            $si = SalesInvoice::select(DB::RAW('sum(totdpp_rp) as total, sum(ppntotdetail) as ppn'));
-            $si->where('isUM', "Y");
-            $si->where('no_so_um', $so_id);
-            $count_si = $si->count();
+        if ($cekDo > 0) {
+            $data = [
+                'result' => false,
+                'soDp' => "",
+                'totalSiDp' => '0',
+                'totalPPnSiDp' => '0'
+            ];
+        } else {
+            if ($count_soDp > 0) {
+                // cek so_um
+                $si = SalesInvoice::select(DB::RAW('sum(totdpp_rp) as total, sum(ppntotdetail) as ppn'));
+                $si->where('isUM', "Y");
+                $si->where('no_so_um', $so_id);
+                $count_si = $si->count();
 
-            // cek sudah pernah keluar invoice
-            if ($count_si > 0) {
-                // sudah pernah bikin
-                $getSi = $si->get();
-                $cekFinal = $si->where('isSI_UM_FINAL', 'Y')->count();
-                if ($cekFinal > 0) {
-                    // final ya ga keluar lagi
+                // cek sudah pernah keluar invoice
+                if ($count_si > 0) {
+                    // sudah pernah bikin
+                    $getSi = $si->get();
+                    $cekFinal = $si->where('isSI_UM_FINAL', 'Y')->count();
+                    if ($cekFinal > 0) {
+                        // final ya ga keluar lagi
+                    } else {
+                        $filteredData = $soDp->get();
+                        $data = [
+                            'result' => true,
+                            'soDp' => $filteredData,
+                            'totalSiDp' => $getSi[0]->total,
+                            'totalPPnSiDp' => $getSi[0]->ppn
+                        ];
+                    }
                 } else {
+                    // belum pernah bikin
                     $filteredData = $soDp->get();
                     $data = [
                         'result' => true,
                         'soDp' => $filteredData,
-                        'totalSiDp' => $getSi[0]->total,
-                        'totalPPnSiDp' => $getSi[0]->ppn
+                        'totalSiDp' => '0',
+                        'totalPPnSiDp' => '0'
                     ];
                 }
-            } else {
-                // belum pernah bikin
-                $filteredData = $soDp->get();
-                $data = [
-                    'result' => true,
-                    'soDp' => $filteredData,
-                    'totalSiDp' => '0',
-                    'totalPPnSiDp' => '0'
-                ];
             }
         }
         return response()->json($data);
@@ -282,11 +293,13 @@ class SalesInvoiceController extends Controller
             $ppn = $getSiDp[0]->ppn;
         }
 
+        $usedDp = SalesInvoice::select(DB::RAW('ifnull(sum(uangmuka),0) as dp'))->where('no_so', $request->input('so_id'))->get(0);
         $data = [
             'result' => true,
             'do' => $do->get(),
             'siDp' => $dp,
-            'ppnSiDp' => $ppn
+            'ppnSiDp' => $ppn,
+            'usedDp' => $usedDp[0]->dp
         ];
 
         return response()->json($data);
