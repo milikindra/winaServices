@@ -326,6 +326,7 @@ class SalesInvoiceController extends Controller
     {
         DB::beginTransaction();
         try {
+            LOg::debug($request);
             $dates =  "SI/" .  date_format(date_create($request['head']['TGL_BUKTI']), 'ymd') . "%";
             $si = SalesInvoice::select('*')
                 ->where('NO_BUKTI', 'LIKE', $dates)
