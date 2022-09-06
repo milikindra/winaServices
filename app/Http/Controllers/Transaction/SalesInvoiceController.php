@@ -522,7 +522,6 @@ class SalesInvoiceController extends Controller
             $request['head'] += ['NO_BUKTI' => $NO_BUKTI];
             $no_pajak = $request->head['no_pajakF'] . "" . $request->head['no_pajakE'];
             $request['head'] += ['no_pajak' => $no_pajak];
-
             $model = SalesInvoice::where('NO_BUKTI', $oldSiId)
                 ->update([
                     'NO_BUKTI' => $request->head['NO_BUKTI'],
@@ -611,6 +610,7 @@ class SalesInvoiceController extends Controller
             if ($getDateLocked[0]->tanggal2 > $request->head['TGL_BUKTI']) {
                 $model = DB::select("CALL TF_BB_SI('$NO_BUKTI', '2018-01-01', '$edate', '%','N')");
                 $newBs = DB::select("CALL TF_BB_SI('$NO_BUKTI', '2018-01-01', '$edate', '%','Y')");
+                DB::beginTransaction();
                 if ($oldBs[0]->debet_rp != $newBs[0]->debet_rp || $oldBs[0]->kredit_rp != $newBs[0]->kredit_rp) {
                     // rollback
                     // Log::debug($oldHead);
@@ -705,27 +705,42 @@ class SalesInvoiceController extends Controller
                     $result = false;
                     $message = ['lock' => 'finance', 'old' => $oldBs, 'new' => $newBs, 'dates' => $getDateLocked[0]->tanggal2];
                     $NO_BUKTI = $oldHead[0]->NO_BUKTI;
+                    DB::commit();
                 } else {
+                    $model = FilePath::where('name', $NO_BUKTI)->where('module', 'SI')->delete();
+                    for ($i = 0; $i < count($request->attach); $i++) {
+                        $val =  "SI_" . substr($NO_BUKTI, 3) . "-" . ($i + 1) . "." . $request->attach[$i]['extension'];
+                        $attach = [];
+                        $attach = [
+                            'module' => 'SI',
+                            'name' => $NO_BUKTI,
+                            'value' => $val,
+                            'path' => 'document/SI/' . date_format(date_create($request->head['TGL_BUKTI']), 'Y') . '/' . $val
+                        ];
+                        $model = FilePath::addData($attach);
+                    }
+                    DB::commit();
                     $message = 'Succesfully update data.';
                     $result = true;
                 }
             } else {
+                $model = FilePath::where('name', $NO_BUKTI)->where('module', 'SI')->delete();
+                for ($i = 0; $i < count($request->attach); $i++) {
+                    $val =  "SI_" . substr($NO_BUKTI, 3) . "-" . ($i + 1) . "." . $request->attach[$i]['extension'];
+                    $attach = [];
+                    $attach = [
+                        'module' => 'SI',
+                        'name' => $NO_BUKTI,
+                        'value' => $val,
+                        'path' => 'document/SI/' . date_format(date_create($request->head['TGL_BUKTI']), 'Y') . '/' . $val
+                    ];
+                    $model = FilePath::addData($attach);
+                }
+                DB::commit();
                 $message = 'Succesfully save data.';
                 $result = true;
             }
 
-            $model = FilePath::where('name', $NO_BUKTI)->where('module', 'SI')->delete();
-            for ($i = 0; $i < count($request->attach); $i++) {
-                $val =  "SI_" . substr($NO_BUKTI, 3) . "-" . ($i + 1) . "." . $request->attach[$i]['extension'];
-                $attach = [];
-                $attach = [
-                    'module' => 'SI',
-                    'name' => $NO_BUKTI,
-                    'value' => $val,
-                    'path' => 'document/SI/' . date_format(date_create($request->head['TGL_BUKTI']), 'Y') . '/' . $val
-                ];
-                $model = FilePath::addData($attach);
-            }
             $data = [
                 "result" => $result,
                 'message' => $message,
