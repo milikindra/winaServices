@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\DB;
 
 use App\Tree\ModuleNode;
 use App\Models\Master\Employee;
+use App\Models\Module;
+use App\Models\ModuleFunction;
+use App\Models\UserGroup;
 
 class EmployeeController extends Controller
 {
@@ -146,10 +149,101 @@ class EmployeeController extends Controller
         }
     }
 
-
     public function employeeGetRawData(Request $request)
     {
         $model = employee::getAll();
         return response()->json($model);
+    }
+
+    public function employeeGroupMatrix(Request $request)
+    {
+        $menu = array();
+        $UA = array();
+        $module = Module::whereNull('parent_id')->get();
+        $j = 0;
+        foreach ($module as $data) {
+            $i = 0;
+            $childModule = Module::where('parent_id', $data->module_id)->get();
+            foreach ($childModule as $row) {
+                $function = ModuleFunction::where('module_id', $row->module_id)->get();
+                $l = 0;
+                if (count($function) < 1) {
+                    $function = NULL;
+                }
+                $menu[$data->module_name][$i] = array(
+                    "child" => $row,
+                    "function" => $function
+                );
+                $i++;
+            }
+            $j++;
+        }
+        $userAccess = array();
+        $userAccessModel = UserGroup::where('description', $request->input('userGroup'))
+            ->pluck('module_function_id')->toArray();
+        if (count($userAccessModel) > 0) {
+            $userAccess = $userAccessModel;
+        }
+        Log::debug($userAccessModel);
+        $data = [
+            'menu' => $menu,
+            // 'userAccess' => $userAccessModel,
+            'userAccess' => $userAccess,
+        ];
+        return response()->json($data);
+    }
+
+    private function traverseModule($module, $path)
+    {
+        $modulSkrg = Module::where('parent_id', $module)->orderBy('module_sequence', 'asc')->where('is_visible', '<>', '0')->get();;
+        if (count($modulSkrg) == 0) {
+            $functionModule = ModuleFunction::join("wina_m_function", "wina_m_module_function.function_id", "wina_m_function.function_id")
+                ->where('module_id', $module)
+                ->get();
+            $lastlevel = array();
+            if (count($functionModule) > 0) {
+                foreach ($functionModule as $functione) {
+                    $tmpFunctionz = array(
+                        "checked" => false,
+                        "children" => array(),
+                        "id" => $functione->module_function_id,
+                        "text" => $functione->function_name,
+                        "path" => $path . "." . $functione->function_name
+                    );
+                    array_push($lastlevel, $tmpFunctionz);
+                }
+            }
+            return $lastlevel;
+        }
+        $tmpTree = array();
+        foreach ($modulSkrg as $m) {
+            $template = array(
+                "checked" => false,
+                "children" => self::traverseModule($m->module_id, $path . "." . $m->module_name),
+                "id" => "-" . $m->module_id,
+                "text" => $m->module_name,
+                "path" => $path . "." . $m->module_name
+            );
+            array_push($tmpTree, $template);
+        }
+        return $tmpTree;
+    }
+
+    public function getEmployeeMatrixList()
+    {
+        $menu = array();
+        $UA = array();
+        $module = Module::whereNull('parent_id')->orderBy('module_sequence', 'asc')->where('is_visible', '1')->get();;
+        foreach ($module as $parent) {
+            $template = array(
+                "checked" => false,
+                "children" => self::traverseModule($parent->module_id, $parent->module_name),
+                "id" => "-" . $parent->module_id,
+                "text" => $parent->module_name,
+                "path" => $parent->module_name
+            );
+            array_push($menu, $template);
+        }
+        return $menu;
     }
 }

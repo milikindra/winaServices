@@ -32,6 +32,8 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
     $router->post('employeeAddSave', ['uses' => 'EmployeeController@employeeAddSave', 'as' => 'employeeAddSave']);
     $router->post('getEmployeeById', ['uses' => 'EmployeeController@getEmployeeById', 'as' => 'getEmployeeById']);
     $router->post('employeeGetRawData', ['uses' => 'EmployeeController@employeeGetRawData', 'as' => 'employeeGetRawData']);
+    $router->post('employee/employeeGroupMatrix', ['uses' =>  'EmployeeController@employeeGroupMatrix', 'as' => 'employee/employeeGroupMatrix']);
+    $router->post('employee/getEmployeeMatrixList', ['uses' => 'EmployeeController@getEmployeeMatrixList', 'as' => 'employee/getEmployeeMatrixList']);
 
     // inventory
     $router->post('inventory/getList', ['uses' =>  'InventoryController@getList', 'as' => 'inventory/getList']);
