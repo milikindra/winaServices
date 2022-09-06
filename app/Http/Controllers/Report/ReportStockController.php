@@ -65,6 +65,7 @@ class ReportStockController extends Controller
             'result' => true,
             'posisiStock' => $stok->get()
         ];
+        Log::debug($data);
 
         return response()->json($data);
     }

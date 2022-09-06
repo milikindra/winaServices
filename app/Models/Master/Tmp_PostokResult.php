@@ -36,7 +36,7 @@ class Tmp_PostokResult extends Model
     {
         // $model = self::select('_postokresult.no_stock', DB::RAW('IF(LENGTH(stock.nm_stock > 50),SUBSTRING(stock.nm_stock,1,50),stock.nm_stock) as nm_stock'), 'stock.sat', '_postokresult.qty', '_postokresult.jml_pok',  DB::RAW('(_postokresult.jml_pok/_postokresult.qty) as rata'));
         // $model = self::select('_postokresult.no_stock', DB::raw('CONCAT(\'\'\'\',_postokresult.nm_stock) as nm_stock'), 'stock.sat', '_postokresult.qty', '_postokresult.jml_pok',  DB::RAW('(_postokresult.jml_pok/_postokresult.qty) as rata'));
-        $model = self::select('_postokresult.no_stock', '_postokresult.nm_stock', 'stock.sat', '_postokresult.qty', '_postokresult.jml_pok','_postokresult.isKonsi',  DB::RAW('(_postokresult.jml_pok/_postokresult.qty) as rata'));
+        $model = self::select('_postokresult.no_stock', '_postokresult.nm_stock', 'stock.sat', '_postokresult.qty', '_postokresult.jml_pok', '_postokresult.isKonsi',  DB::RAW('(_postokresult.jml_pok/_postokresult.qty) as rata'), '_postokresult.id_lokasi');
 
         return $model;
     }
