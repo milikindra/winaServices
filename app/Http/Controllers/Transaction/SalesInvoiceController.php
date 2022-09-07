@@ -421,7 +421,7 @@ class SalesInvoiceController extends Controller
                     'module' => 'SI',
                     'name' => $NO_BUKTI,
                     'value' => $val,
-                    'path' => 'document/SI/' . date_format(date_create($request->head['TGL_BUKTI']), 'Y') . '/' . date_format(date_create($request->head['TGL_BUKTI']), 'M') . '/' . $val
+                    'path' => 'document/SI/' . date_format(date_create($request->head['TGL_BUKTI']), 'Y') . '/' . date_format(date_create($request->head['TGL_BUKTI']), 'm') . '/' . $val
                 ];
                 $model = FilePath::addData($attach);
             }
@@ -434,8 +434,8 @@ class SalesInvoiceController extends Controller
                 'message' => $message,
                 "data" => $model,
                 "id" => $NO_BUKTI,
-                'fName' =>  substr($request->head['no_pajakE'], -4) . "-" . $so . "-" . $request->head['NM_CUST'] . "-",
-                'folder' =>  'document/SI/' . date_format(date_create($request->head['TGL_BUKTI']), 'Y') . '/' . date_format(date_create($request->head['TGL_BUKTI']), 'M'),
+                'fName' =>  substr($request->head['no_pajakE'], -4) . "-" . $so . "-" . $request->head['NM_CUST'],
+                'folder' =>  'document/SI/' . date_format(date_create($request->head['TGL_BUKTI']), 'Y') . '/' . date_format(date_create($request->head['TGL_BUKTI']), 'm'),
             ];
             return $data;
         } catch (\Exception $e) {
