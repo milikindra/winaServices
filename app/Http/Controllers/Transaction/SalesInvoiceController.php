@@ -730,46 +730,64 @@ class SalesInvoiceController extends Controller
                     $message = ['lock' => 'finance', 'old' => $oldBs, 'new' => $newBs, 'dates' => $getDateLocked[0]->tanggal2];
                     $NO_BUKTI = $oldHead[0]->NO_BUKTI;
                     DB::commit();
+                    $fname =  '';
+                    $folder = '';
                 } else {
                     $model = FilePath::where('name', $NO_BUKTI)->where('module', 'SI')->delete();
+                    $so = $request->head['no_so'];
+                    if ($request->head['isUM'] == 'Y') {
+                        $so = $request->head['no_so_um'];
+                    }
                     for ($i = 0; $i < count($request->attach); $i++) {
-                        $val =  "SI_" . substr($NO_BUKTI, 3) . "-" . ($i + 1) . "." . $request->attach[$i]['extension'];
+                        // $val =  "SI_" . substr($NO_BUKTI, 3) . "-" . ($i + 1) . "." . $request->attach[$i]['extension'];
+                        $val = substr($request->head['no_pajakE'], -4) . "-" . $so . "-" . $request->head['NM_CUST'] . "-" . ($i + 1) . "." . $request->attach[$i]['extension'];
                         $attach = [];
                         $attach = [
                             'module' => 'SI',
                             'name' => $NO_BUKTI,
                             'value' => $val,
-                            'path' => 'document/SI/' . date_format(date_create($request->head['TGL_BUKTI']), 'Y') . '/' . $val
+                            'path' => 'document/SI/' . date_format(date_create($request->head['TGL_BUKTI']), 'Y') . '/' . date_format(date_create($request->head['TGL_BUKTI']), 'm') . '/' . $val
                         ];
                         $model = FilePath::addData($attach);
                     }
                     DB::commit();
                     $message = 'Succesfully update data.';
                     $result = true;
+                    $fname =  substr($request->head['no_pajakE'], -4) . "-" . $so . "-" . $request->head['NM_CUST'];
+                    $folder = 'document/SI/' . date_format(date_create($request->head['TGL_BUKTI']), 'Y') . '/' . date_format(date_create($request->head['TGL_BUKTI']), 'm');
                 }
             } else {
                 $model = FilePath::where('name', $NO_BUKTI)->where('module', 'SI')->delete();
+                $so = $request->head['no_so'];
+                if ($request->head['isUM'] == 'Y') {
+                    $so = $request->head['no_so_um'];
+                }
                 for ($i = 0; $i < count($request->attach); $i++) {
-                    $val =  "SI_" . substr($NO_BUKTI, 3) . "-" . ($i + 1) . "." . $request->attach[$i]['extension'];
+                    // $val =  "SI_" . substr($NO_BUKTI, 3) . "-" . ($i + 1) . "." . $request->attach[$i]['extension'];
+                    $val = substr($request->head['no_pajakE'], -4) . "-" . $so . "-" . $request->head['NM_CUST'] . "-" . ($i + 1) . "." . $request->attach[$i]['extension'];
                     $attach = [];
                     $attach = [
                         'module' => 'SI',
                         'name' => $NO_BUKTI,
                         'value' => $val,
-                        'path' => 'document/SI/' . date_format(date_create($request->head['TGL_BUKTI']), 'Y') . '/' . $val
+                        'path' => 'document/SI/' . date_format(date_create($request->head['TGL_BUKTI']), 'Y') . '/' . date_format(date_create($request->head['TGL_BUKTI']), 'm') . '/' . $val
                     ];
                     $model = FilePath::addData($attach);
                 }
                 DB::commit();
                 $message = 'Succesfully save data.';
                 $result = true;
+                $fname =  substr($request->head['no_pajakE'], -4) . "-" . $so . "-" . $request->head['NM_CUST'];
+                $folder = 'document/SI/' . date_format(date_create($request->head['TGL_BUKTI']), 'Y') . '/' . date_format(date_create($request->head['TGL_BUKTI']), 'm');
             }
 
             $data = [
                 "result" => $result,
                 'message' => $message,
                 "data" => $model,
-                "id" => $NO_BUKTI
+                "id" => $NO_BUKTI,
+                'fName' =>  $fname,
+                'folder' =>  $folder,
             ];
             return $data;
         } catch (\Exception $e) {
