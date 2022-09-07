@@ -366,10 +366,11 @@ class SalesInvoiceController extends Controller
                         DB::select("CALL SP_UPDATE_VINTRAS('" . $request->detail[$i]['vintrasId'] . "','" . $request->detail[$i]['itemTahunVintras'] . "', 'Tipe_Inquiry8', '3','" . $request->head['CREATOR'] . "', ''");
                     }
                 } else {
-                    $detail = SalesOrder::select('kontrak_head.*', 'kontrak_det.*', DB::RAW('"" as no_sj'))
-                        ->leftJoin('kontrak_det', 'kontrak_head.NO_BUKTI', 'kontrak_det.NO_BUKTI')
-                        ->where('kontrak_head.NO_BUKTI', $request['head']['no_so_um'])->get();
-                    // Log::debug($detail);
+                    $detail = SalesOrderDetail::select('stock.*')
+                        ->leftJoin('stock', 'stock.NO_STOCK', 'kontrak_det.NO_STOCK')
+                        ->where('kontrak_det.NO_BUKTI', $request['head']['no_so_um'])->get();
+                    // ->where('stock.NO_STOCK', $request->detail[$i]['NO_STOCK']);
+
                     foreach ($detail as $det) {
                         if ($det->vintrasId  != '' && $det->itemTahunVintras != '') {
                             // bikin commit ga guna (update untuk SI_UM)
@@ -829,9 +830,9 @@ class SalesInvoiceController extends Controller
             } else {
                 $getHead = SalesInvoice::select('*')->where('NO_BUKTI', $request->NO_BUKTI)->get();
                 if ($getHead[0]->no_so_um != '') {
-                    $detail = SalesOrder::select('kontrak_head.*', 'kontrak_det.*', DB::RAW('"" as no_sj'))
-                        ->leftJoin('kontrak_det', 'kontrak_head.NO_BUKTI', 'kontrak_det.NO_BUKTI')
-                        ->where('kontrak_head.NO_BUKTI', $getHead[0]->no_so_um)->get();
+                    $detail = SalesOrderDetail::select('stock.*')
+                        ->leftJoin('stock', 'kontrak_det.NO_STOCK', 'stock.NO_STOCK')
+                        ->where('kontrak_det.NO_BUKTI', $getHead[0]->no_so_um)->get();
                     foreach ($detail as $det) {
                         if ($det->vintrasId != '' && $det->itemTahunVintras != '') {
                             // bikin commit ga guna (update untuk SI_UM)
@@ -841,7 +842,7 @@ class SalesInvoiceController extends Controller
                 } else {
                     $detail = SalesInvoice::select('*')
                         ->leftJoin('jual_det', 'jual_head.NO_BUKTI', 'jual_det.NO_BUKTI')
-                        ->leftJoin('kontrak_det', 'kontrak_det.NO_STOCK', 'jual_det.NO_STOCK')
+                        ->leftJoin('stock', 'stock.NO_STOCK', 'jual_det.NO_STOCK')
                         ->where('jual_head.NO_BUKTI', $request->NO_BUKTI)->get();
                     foreach ($detail as $det) {
                         if ($det->vintrasId != '' && $det->itemTahunVintras != '') {
