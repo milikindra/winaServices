@@ -360,6 +360,23 @@ class SalesInvoiceController extends Controller
                 $detail['kode_group'] = $request->detail[$i]['kode_group'];
                 $detail['no_sj'] = $request->detail[$i]['no_sj'];
                 $model = SalesInvoiceDetail::addData($detail);
+                if ($request->head['isUM'] != "Y") {
+                    if ($request->detail[$i]['vintrasId'] != '' && $request->detail[$i]['itemTahunVintras'] != '') {
+                        // bikin commit ga guna (update untuk SI_DO)
+                        DB::select("CALL SP_UPDATE_VINTRAS('" . $request->detail[$i]['vintrasId'] . "','" . $request->detail[$i]['itemTahunVintras'] . "', 'Tipe_Inquiry8', '3','" . $request->head['CREATOR'] . "', ''");
+                    }
+                } else {
+                    $detail = SalesOrder::select('kontrak_head.*', 'kontrak_det.*', DB::RAW('"" as no_sj'))
+                        ->leftJoin('kontrak_det', 'kontrak_head.NO_BUKTI', 'kontrak_det.NO_BUKTI')
+                        ->where('kontrak_head.NO_BUKTI', $request['head']['no_so_um'])->get();
+                    // Log::debug($detail);
+                    foreach ($detail as $det) {
+                        if ($det->vintrasId  != '' && $det->itemTahunVintras != '') {
+                            // bikin commit ga guna (update untuk SI_UM)
+                            DB::select("CALL SP_UPDATE_VINTRAS('" . $det->vintrasId . "','" . $det->itemTahunVintras . "', 'Tipe_Inquiry8', '2','" . $request->head['CREATOR'] . "', ''");
+                        }
+                    }
+                }
             }
             $masterNoPajak = str_replace("-", ".", $request->head['no_pajakE']);
             $model = EfakturDetail::where('nomor', $masterNoPajak)
@@ -797,7 +814,6 @@ class SalesInvoiceController extends Controller
         DB::beginTransaction();
         try {
             $cekCr = CustomerReceiptDetail::select('*')->where('no_nota', $request->NO_BUKTI)->get();
-            Log::debug($cekCr);
             if (count($cekCr) > 0) {
                 $crId = "'" . $cekCr[0]['no_bukti'] . "'";
                 for ($i = 1; $i < count($cekCr); $i++) {
@@ -811,6 +827,30 @@ class SalesInvoiceController extends Controller
                 ];
                 return $data;
             } else {
+                $getHead = SalesInvoice::select('*')->where('NO_BUKTI', $request->NO_BUKTI)->get();
+                if ($getHead[0]->no_so_um != '') {
+                    $detail = SalesOrder::select('kontrak_head.*', 'kontrak_det.*', DB::RAW('"" as no_sj'))
+                        ->leftJoin('kontrak_det', 'kontrak_head.NO_BUKTI', 'kontrak_det.NO_BUKTI')
+                        ->where('kontrak_head.NO_BUKTI', $getHead[0]->no_so_um)->get();
+                    foreach ($detail as $det) {
+                        if ($det->vintrasId != '' && $det->itemTahunVintras != '') {
+                            // bikin commit ga guna (update untuk SI_UM)
+                            DB::select("CALL SP_UPDATE_VINTRAS('" . $det->vintrasId . "','" . $det->itemTahunVintras . "', 'Tipe_Inquiry8', '0','" . $request->user . "', ''");
+                        }
+                    }
+                } else {
+                    $detail = SalesInvoice::select('*')
+                        ->leftJoin('jual_det', 'jual_head.NO_BUKTI', 'jual_det.NO_BUKTI')
+                        ->leftJoin('kontrak_det', 'kontrak_det.NO_STOCK', 'jual_det.NO_STOCK')
+                        ->where('jual_head.NO_BUKTI', $request->NO_BUKTI)->get();
+                    foreach ($detail as $det) {
+                        if ($det->vintrasId != '' && $det->itemTahunVintras != '') {
+                            // bikin commit ga guna (update untuk SI_UM)
+                            DB::select("CALL SP_UPDATE_VINTRAS('" . $det->vintrasId . "','" . $det->itemTahunVintras . "', 'Tipe_Inquiry8', '0','" . $request->user . "', ''");
+                        }
+                    }
+                }
+
                 $fileLocal = FilePath::where('name', $request->NO_BUKTI)->where('module', 'SI')->get();
                 FilePath::where('name', $request->NO_BUKTI)->where('module', 'SI')->delete();
                 SalesInvoice::deleteData($request->NO_BUKTI);
