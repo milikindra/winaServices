@@ -369,7 +369,6 @@ class SalesInvoiceController extends Controller
                     $detail = SalesOrderDetail::select('stock.*')
                         ->leftJoin('stock', 'stock.NO_STOCK', 'kontrak_det.NO_STOCK')
                         ->where('kontrak_det.NO_BUKTI', $request['head']['no_so_um'])->get();
-                    // ->where('stock.NO_STOCK', $request->detail[$i]['NO_STOCK']);
 
                     foreach ($detail as $det) {
                         if ($det->vintrasId  != '' && $det->itemTahunVintras != '') {

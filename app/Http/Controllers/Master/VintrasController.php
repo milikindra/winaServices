@@ -91,4 +91,12 @@ class VintrasController extends Controller
 
         return response()->json($data);
     }
+
+    public function vintrasGetQuotationByPeriod(request $request)
+    {
+        $tbl = 'vpa.inquiry' . $request->input('period');
+        $model = DB::table($tbl)
+            ->select(DB::RAW('distinct Kode_Ref'))->get();
+        return response()->json($model);
+    }
 }

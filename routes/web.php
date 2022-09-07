@@ -105,6 +105,7 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
     // vintras
     $router->post('vintrasGetData', ['uses' => 'VintrasController@vintrasGetData', 'as' => 'vintrasGetData']);
     $router->post('vintras/getList', ['uses' => 'VintrasController@getList', 'as' => 'vintras/getList']);
+    $router->post('vintrasGetQuotationByPeriod', ['uses' => 'VintrasController@vintrasGetQuotationByPeriod', 'as' => 'vintrasGetQuotationByPeriod']);
 
     // area
     $router->post('areaGetRawData', ['uses' => 'AreaController@areaGetRawData', 'as' => 'areaGetRawData']);
