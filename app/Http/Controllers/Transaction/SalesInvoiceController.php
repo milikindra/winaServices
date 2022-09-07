@@ -409,8 +409,13 @@ class SalesInvoiceController extends Controller
                     $i++;
                 }
             }
+            $so = $request->head['no_so'];
+            if ($request->head['isUM'] == 'Y') {
+                $so = $request->head['no_so_um'];
+            }
             for ($i = 0; $i < count($request->attach); $i++) {
-                $val =  "SI_" . date_format(date_create($request['head']['TGL_BUKTI']), 'ymd')  . "-" . $inc . "-" . ($i + 1) . "." . $request->attach[$i]['extension'];
+                // $val =  "SI_" . date_format(date_create($request['head']['TGL_BUKTI']), 'ymd')  . "-" . $inc . "-" . ($i + 1) . "." . $request->attach[$i]['extension'];
+                $val = substr($request->head['no_pajakE'], -4) . "-" . $so . "-" . $request->head['NM_CUST'] . "-" . ($i + 1) . "." . $request->attach[$i]['extension'];
                 $attach = [];
                 $attach = [
                     'module' => 'SI',
@@ -428,7 +433,8 @@ class SalesInvoiceController extends Controller
                 "result" => true,
                 'message' => $message,
                 "data" => $model,
-                "id" => $NO_BUKTI
+                "id" => $NO_BUKTI,
+                'fName' =>  substr($request->head['no_pajakE'], -4) . "-" . $so . "-" . $request->head['NM_CUST'] . "-",
             ];
             return $data;
         } catch (\Exception $e) {
